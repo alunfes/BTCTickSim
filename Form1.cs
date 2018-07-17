@@ -32,8 +32,8 @@ namespace BTCTickSim
 
         private void buttonStart_Click(object sender, EventArgs e)
         {
-            TickData.readTickData();
-
+            ThreadMaster tm = new ThreadMaster();
+            tm.start();
         }
 
         #region Delegate

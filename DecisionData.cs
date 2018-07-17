@@ -8,13 +8,17 @@ namespace BTCTickSim
 {
     class DecisionData
     {
-        public string position;
+        public string position;//Long, Short, Cancel, Cancel All
+        public int cancel_index;
+        public bool price_tracing_order;
         public double price;
         public double lot;
 
         public DecisionData()
         {
-            position = "None";
+            position = "";
+            cancel_index = -1;
+            price_tracing_order = false;
             price = 0;
             lot = 0;
         }

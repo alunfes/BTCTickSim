@@ -22,6 +22,8 @@ namespace BTCTickSim
 
         public static void readTickData()
         {
+            Form1.Form1Instance.setLabel("kita");
+            
             TickData.initialize();
 
             using (System.IO.StreamReader sr = new System.IO.StreamReader("tick.csv", Encoding.UTF8, false))

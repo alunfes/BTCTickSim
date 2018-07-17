@@ -11,11 +11,16 @@ namespace BTCTickSim
     {
         public void start()
         {
-            Thread th = new Thread(TickData.readTickData);
+            Thread th = new Thread(doSIm);
             th.Start();
-            th.Join();
+        }
 
+        private void doSIm()
+        {
+            TickData.readTickData();
 
+            SIM s = new SIM();
+            s.startContrarianSashine(TickData.price.Count-10000, TickData.price.Count-1, 30, 3, 30, 1000, 500);
         }
     }
 }
