@@ -20,7 +20,7 @@ namespace BTCTickSim
             TickData.readTickData();
 
             SIM s = new SIM();
-            s.startContrarianSashine(TickData.price.Count-10000, TickData.price.Count-1, 30, 3, 30, 1000, 500);
+            s.startContrarianSashine(TickData.price.Count-10000, TickData.price.Count-100, 60, 60, 0.001, 0.0005);
         }
     }
 }

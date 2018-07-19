@@ -8,7 +8,7 @@ namespace BTCTickSim
 {
     class DecisionData
     {
-        public string position;//Long, Short, Cancel, Cancel All
+        public string position;//Long, Short, Cancel, Cancel_All, Cancel_PriceTracingOrder
         public int cancel_index;
         public bool price_tracing_order;
         public double price;

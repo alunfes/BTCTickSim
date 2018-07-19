@@ -16,50 +16,57 @@ namespace BTCTickSim
          * lot is always 0.05
          * 
         /*************************************************************************************/
-        public static DecisionData contrarianSashine(Account ac, int i, double exit_time_sec, double cancel_time_sec, int kairi_term, double entry_kairi, double rikaku_price)
+        public static DecisionData contrarianSashine(Account ac, int i, double exit_time_sec, int kairi_term, double entry_kairi, double rikaku_percentage)
         {
             DecisionData dd = new DecisionData();
             
-            double kairi = TickData.price[i] - TickData.price[i - kairi_term];
+            double kairi = (TickData.price[i] - TickData.price[i - kairi_term])/TickData.price[i-kairi_term];
 
-
-            if()
-
-            /***********************************/
-
-
+            string entry_sign = "";
             if (kairi >= entry_kairi)
-            {
-                if(ac.holding_position == "None" && ac.price_tracing_order_flg==false)
-                {
-                    dd.lot = 0.05;
-                    dd.position = "Short";
-                    dd.price_tracing_order = true;
-                }
-                else if (ac.holding_position == "Short" && ac.unexe_position.Count == 0) // place rikaku order
-                {
-                    dd.lot = 0.05;
-                    dd.position = "Long";
-                    dd.price = ac.ave_holding_price - rikaku_price;
-                    dd.price_tracing_order = false;
-                }
-            }
-            else if(kairi <= -entry_kairi)
+                entry_sign = "Short";
+            else if (kairi <= -entry_kairi)
+                entry_sign = "Long";
+
+            if(entry_sign !="")
             {
                 if (ac.holding_position == "None" && ac.price_tracing_order_flg == false)
                 {
-                    dd.lot = 0.05;
-                    dd.position = "Long";
-                    dd.price_tracing_order = true;
+                    dd = makeDDForEntryPriceTracingOrder(i, entry_sign, true, 0.05);
                 }
-                else if (ac.holding_position == "Long" && ac.unexe_position.Count == 0) // place rikaku order
+                else if (ac.holding_position != "None" && entry_sign != ac.holding_position && ac.price_tracing_order_flg && ac.cancel_all_orders == false)
                 {
-                    dd.lot = 0.05;
-                    dd.position = "Short";
-                    dd.price = ac.ave_holding_price + rikaku_price;
+                    dd = makeDDForEntryPriceTracingOrder(i, "Cancel_PriceTracingOrder", false, 0);
+                }
+                else if (ac.holding_position != "None" && entry_sign != ac.holding_position && ac.price_tracing_order_flg == false && ac.cancel_all_orders == false)
+                {
+                    dd = makeDDForEntryPriceTracingOrder(i, entry_sign, true, ac.ave_holding_lot + 0.05);
+                }
+                else if(entry_sign == ac.holding_position && ac.unexe_position.Count == 0)
+                {
+                    dd.position = (entry_sign == "Long") ? "Short" : "Long";
+                    dd.cancel_index = -1;
                     dd.price_tracing_order = false;
+                    dd.price = (ac.holding_position == "Long") ? ac.ave_holding_price * (1 + rikaku_percentage) : ac.ave_holding_price * (1 - rikaku_percentage);
+                    dd.lot = ac.ave_holding_lot;
+                }
+                else if(entry_sign == ac.holding_position && ac.unexe_position.Count == 0 && (TickData.time[i] - ac.last_entry_time).Seconds >= exit_time_sec)
+                {
+                    dd = makeDDForEntryPriceTracingOrder(i, (ac.holding_position == "Long") ? "Short" : "Long", true, ac.ave_holding_lot);
                 }
             }
+            
+            return dd;
+        }
+
+        private static DecisionData makeDDForEntryPriceTracingOrder(int i, string order_position, bool flg, double lot)
+        {
+            DecisionData dd = new DecisionData();
+            dd.position = order_position;
+            dd.cancel_index = -1;
+            dd.price_tracing_order = flg;
+            dd.price = 0;
+            dd.lot = lot;
             return dd;
         }
     }
