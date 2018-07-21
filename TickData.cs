@@ -22,7 +22,6 @@ namespace BTCTickSim
 
         public static void readTickData()
         {
-            Form1.Form1Instance.setLabel("kita");
             
             TickData.initialize();
 

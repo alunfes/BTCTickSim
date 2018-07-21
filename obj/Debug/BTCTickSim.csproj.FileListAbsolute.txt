@@ -8,3 +8,13 @@ C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTic
 C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.csproj.CoreCompileInputs.cache
 C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.exe
 C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.pdb
+F:\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\bin\Debug\BTCTickSim.exe.config
+F:\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\bin\Debug\BTCTickSim.exe
+F:\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\bin\Debug\BTCTickSim.pdb
+F:\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.csprojResolveAssemblyReference.cache
+F:\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.Form1.resources
+F:\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.Properties.Resources.resources
+F:\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.csproj.GenerateResource.Cache
+F:\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.csproj.CoreCompileInputs.cache
+F:\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.exe
+F:\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.pdb

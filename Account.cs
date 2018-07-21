@@ -57,6 +57,9 @@ namespace BTCTickSim
 
         public Account()
         {
+            start_ind = 999999999;
+            end_ind = 0;
+
             pl = 0;
             cum_pl = 0;
             num_trade = 0;
@@ -130,15 +133,17 @@ namespace BTCTickSim
 
         public void moveToNext(int i)
         {
-            updatePriceTracingOrder(i);
             checkExecution(i);
+            checkCancel(i);
+            updatePriceTracingOrder(i);
             pl = calcPL(i);
             pl_log.Add(i, pl);
+            if (cum_pl_log.ContainsKey(i) == false) cum_pl_log.Add(i, cum_pl);
             position_log.Add(i, holding_position);
             lot_log.Add(i, ave_holding_lot);
             holding_price_log.Add(i, ave_holding_price);
             action_log_num = 0;
-            start_ind = (i<start_ind) ? i : start_ind;
+            start_ind = (i < start_ind) ? i : start_ind;
         }
 
         public void lastDayOperation(int i, bool writelog)
@@ -172,8 +177,7 @@ namespace BTCTickSim
                 unexe_time.Add(TickData.time[i]);
                 unexe_i.Add(i);
                 unexe_cancel.Add(false);
-                //action_log.Add(i, "Placed Order for " + position + " @" + price.ToString() + " x " + lot.ToString());
-                takeActionLog(i, "Placed Order for " + position + " @" + price.ToString() + " x " + lot.ToString());
+                takeActionLog(i, "Entry Order for " + position + " @" + price.ToString() + " x " + lot.ToString());
             }
         }
 
@@ -195,21 +199,24 @@ namespace BTCTickSim
             price_tracing_order_flg = true;
             price_tracing_order_target_lot = target_lot;
             cancelAllOrders(i);
-            //action_log.Add(i, "Started Price Tracing Order for " + position + " x" + target_lot.ToString());
             takeActionLog(i, "Started Price Tracing Order for " + position + " x" + target_lot.ToString());
         }
 
 
         private void updatePriceTracingOrder(int i)
         {
-            if (price_tracing_order_flg && cancel_all_orders == false)
+            if (unexe_position.Count == 0 && price_tracing_order_target_lot == 0) //finished price tracing order
+            {
+                initializePriceTracingOrder();
+            }
+            else if (price_tracing_order_flg && cancel_all_orders == false)
             {
                 if (unexe_position.Count == 0)
                 {
                     price_tracing_order_dt = TickData.time[i];
                     double opt_lot = calcLotForPriceTracingOrder(i);
                     entryOrder(i, price_tracing_order_position, calcPriceForPriceTracingOrder(i), opt_lot);
-                    price_tracing_order_target_lot -= opt_lot;
+                    price_tracing_order_target_lot -= opt_lot; //temporary minus order lot from target_lot
                     price_tracing_order_i = i;
                 }
                 else
@@ -217,10 +224,6 @@ namespace BTCTickSim
                     if ((TickData.time[i] - price_tracing_order_dt).Seconds >= order_time_lag * 2)
                         cancelAllOrders(i);
                 }
-            }
-            else if (price_tracing_order_flg && cancel_all_orders)
-            {
-                //do nothing
             }
         }
 
@@ -240,14 +243,13 @@ namespace BTCTickSim
 
         private double calcLotForPriceTracingOrder(int i)
         {
-            return (price_tracing_order_target_lot > 0.01) ? 0.01 : price_tracing_order_target_lot;
+            return (price_tracing_order_target_lot > 0.05) ? 0.05 : price_tracing_order_target_lot;
         }
 
         public void cancelPriceTracingOrder(int i)
         {
-            cancelAllOrdersForPriceTracingStart(i);
+            cancelAllOrders(i);
             initializePriceTracingOrder();
-            //action_log.Add(i, "Stopped Price Tracing Order");
             takeActionLog(i, "Stopped Price Tracing Order");
         }
 
@@ -258,82 +260,78 @@ namespace BTCTickSim
                 cancel_all_orders = true;
                 cancel_all_order_time = TickData.time[i];
                 cancel_all_order_i = i;
-                //action_log.Add(i, "Cancelling All Orders");
                 takeActionLog(i, "Cancelling All Orders");
-            }
-        }
-
-        private void cancelAllOrdersForPriceTracingStart(int i)
-        {
-            if (unexe_position.Count > 0)
-            {
-                cancel_all_orders = true;
-                cancel_all_order_time = TickData.time[i];
-                cancel_all_order_i = i;
             }
         }
 
         public void cancelOrder(int i, int index)
         {
             unexe_cancel[index] = true;
-            //action_log.Add(i, "Cancelling order #" + index.ToString());
             takeActionLog(i, "Cancelling order #" + index.ToString());
         }
 
-        private void checkExecution(int i)
+        private void checkExecution(int i)//cancel中でも約定判定すべき
         {
-            if (cancel_all_orders == false)
+            for (int j = 0; j < unexe_position.Count; j++)
             {
-                for (int j = 0; j < unexe_position.Count; j++)
+                if ((TickData.time[i] - unexe_time[j]).Seconds >= order_time_lag)
                 {
-                    if ((TickData.time[i] - unexe_time[j]).Seconds >= order_time_lag)
+                    if (unexe_position[j] == "Long")
                     {
-                        if (unexe_position[j] == "Long")
-                        {
-                            if (TickData.price[i] <= unexe_price[j])
-                                execute(i, j);
-                        }
-                        else if (unexe_position[j] == "Short")
-                        {
-                            if (TickData.price[i] >= unexe_price[j])
-                                execute(i, j);
-                        }
+                        if (TickData.price[i] <= unexe_price[j])
+                            execute(i, j);
+                    }
+                    else if (unexe_position[j] == "Short")
+                    {
+                        if (TickData.price[i] >= unexe_price[j])
+                            execute(i, j);
                     }
                 }
-            }
-            else
-            {
-                if ((TickData.time[i] - cancel_all_order_time).Seconds >= order_time_lag)
-                    executeCancelAllOrders(i);
             }
         }
 
         private void checkCancel(int i)
         {
-            string cancelled_index = "";
-            for (int j = 0; j < unexe_cancel.Count; j++)
+            if (cancel_all_orders)
             {
-                if (unexe_cancel[j] && (TickData.time[i] - unexe_time[j]).Seconds >= order_time_lag)
-                {
-                    removeUnexeInd(j);
-                    cancelled_index += j.ToString() + ",";
-                }
+                if ((TickData.time[i] - cancel_all_order_time).Seconds >= order_time_lag)
+                    executeCancelAllOrders(i);
             }
-            if (cancelled_index != "")
-                takeActionLog(i, "Cancelled orders #" + cancelled_index);
-                //action_log.Add(i, "Cancelled orders #" + cancelled_index);
-
+            else
+            {
+                string cancelled_index = "";
+                for (int j = 0; j < unexe_cancel.Count; j++)
+                {
+                    if (unexe_cancel[j] && (TickData.time[i] - unexe_time[j]).Seconds >= order_time_lag)
+                    {
+                        removeUnexeInd(j);
+                        cancelled_index += j.ToString() + ",";
+                    }
+                }
+                if (cancelled_index != "")
+                    takeActionLog(i, "Cancelled orders #" + cancelled_index);
+            }
         }
 
         private void execute(int i, int unexe_ind)
         {
             double lot = (TickData.volume[i] >= unexe_lot[unexe_ind]) ? unexe_lot[unexe_ind] : TickData.volume[i]; // executable lot
-            if (holding_position == "Long")
+
+            if (holding_position == "None")
+            {
+                holding_position = unexe_position[unexe_ind];
+                ave_holding_lot += lot;
+                ave_holding_price = unexe_price[unexe_ind];
+                last_entry_time = TickData.time[i];
+                last_entry_i = i;
+            }
+            else if (holding_position == "Long")
             {
                 if (unexe_position[unexe_ind] == "Long")
                 {
                     ave_holding_price = ((ave_holding_price * ave_holding_lot) + (unexe_price[unexe_ind] * lot)) / (ave_holding_lot + lot);
                     ave_holding_lot += lot;
+                    holding_position = "Long";
                     last_entry_i = i;
                     last_entry_time = TickData.time[i];
                 }
@@ -365,6 +363,7 @@ namespace BTCTickSim
                 {
                     if (lot < ave_holding_lot)
                     {
+                        holding_position = "Short";
                         ave_holding_lot -= lot;
                         updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot);
                     }
@@ -386,23 +385,25 @@ namespace BTCTickSim
                 else if (unexe_position[unexe_ind] == "Short")
                 {
                     ave_holding_price = ((ave_holding_price * ave_holding_lot) + (unexe_price[unexe_ind] * lot)) / (ave_holding_lot + lot);
-                    ave_holding_lot += unexe_lot[unexe_ind];
+                    ave_holding_lot += lot;
+                    holding_position = "Short";
                     last_entry_i = i;
                     last_entry_time = TickData.time[i];
                 }
             }
+            takeActionLog(i, "Executed " + unexe_position[unexe_ind] + " @" + unexe_price[unexe_ind].ToString() + " x " + lot.ToString());
 
             if (lot >= unexe_lot[unexe_ind])
                 removeUnexeInd(unexe_ind);
             else
                 unexe_lot[unexe_ind] -= lot;
-            //action_log.Add(i, "Executed " + unexe_position[unexe_ind] + " @" + unexe_price[unexe_ind].ToString() + " x " + lot.ToString());
-            takeActionLog(i, "Executed " + unexe_position[unexe_ind] + " @" + unexe_price[unexe_ind].ToString() + " x " + lot.ToString());
         }
 
 
         private void executeCancel(int i, int index)
         {
+            if (price_tracing_order_flg)
+                price_tracing_order_target_lot += unexe_lot[index];
             removeUnexeInd(index);
             action_log.Add(i, "Cancelled order #" + index.ToString());
             takeActionLog(i, "Cancelled order #" + index.ToString());
@@ -410,9 +411,13 @@ namespace BTCTickSim
 
         private void executeCancelAllOrders(int i)
         {
+            if (price_tracing_order_flg)
+            {
+                foreach (double v in unexe_lot)
+                    price_tracing_order_target_lot += v;
+            }
             initializeUnexeData();
             initializeCancelAllData();
-            //action_log.Add(i, "Cancelled all orders");
             takeActionLog(i, "Cancelled all orders");
         }
 
@@ -423,21 +428,21 @@ namespace BTCTickSim
             {
                 if (unexe_position[unexe_ind] == "Short")
                 {
-                    pl = (TickData.price[i] - price) * lot;
+                    pl = (price - ave_holding_price) * lot;
                 }
             }
             else if (holding_position == "Short")
             {
                 if (unexe_position[unexe_ind] == "Long")
                 {
-                    pl = (price - TickData.price[i]) * lot;
+                    pl = (ave_holding_price - price) * lot;
                 }
             }
             num_trade++;
             if (pl > 0)
                 win_rate++;
             cum_pl += pl;
-            cum_pl_log.Add(i, pl);
+            cum_pl_log.Add(i, cum_pl);
         }
 
         public void writeLog()
@@ -486,10 +491,11 @@ namespace BTCTickSim
                     line += lot_log.ContainsKey(i) ? lot_log[i] + "," : " ,";
 
                     int n = 0;
-                    while(action_log2.ContainsKey(i.ToString() +"-"+n.ToString()))
+                    while (action_log2.ContainsKey(i.ToString() + "-" + n.ToString()))
                     {
-                        line += action_log2[i.ToString() + "-" + n.ToString()];
-                        line += (n > 0) ? "\r\n" : "";
+                        line += action_log2[i.ToString() + "-" + n.ToString()] + ",";
+                        //line += (n > 0) ? Environment.NewLine : "";
+                        n++;
                     }
                     sw.WriteLine(line);
                 }

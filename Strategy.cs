@@ -8,6 +8,13 @@ namespace BTCTickSim
 {
     static class Strategy
     {
+
+
+
+
+
+
+
         /*************************************************************************************/
         /*entry when kairi > entry_kairi
          * cancel all orders, stop price tracing order when opposite position entry sign was flagged
@@ -47,7 +54,7 @@ namespace BTCTickSim
                     dd.position = (entry_sign == "Long") ? "Short" : "Long";
                     dd.cancel_index = -1;
                     dd.price_tracing_order = false;
-                    dd.price = (ac.holding_position == "Long") ? ac.ave_holding_price * (1 + rikaku_percentage) : ac.ave_holding_price * (1 - rikaku_percentage);
+                    dd.price = (ac.holding_position == "Long") ? Math.Round(ac.ave_holding_price * (1 + rikaku_percentage)) : Math.Round(ac.ave_holding_price * (1 - rikaku_percentage));
                     dd.lot = ac.ave_holding_lot;
                 }
                 else if(entry_sign == ac.holding_position && ac.unexe_position.Count == 0 && (TickData.time[i] - ac.last_entry_time).Seconds >= exit_time_sec)
