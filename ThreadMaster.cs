@@ -25,7 +25,7 @@ namespace BTCTickSim
         {
             TickData.readTickData();
             GA ga = new GA();
-            ga.startGA(100, 10, TickData.time.Count - 50000, TickData.time.Count - 100);
+            ga.startGA(100, 100, TickData.time.Count - 50000, TickData.time.Count - 100);
         }
 
         private void doSIm()

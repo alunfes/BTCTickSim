@@ -26,8 +26,11 @@ namespace BTCTickSim
             for (int i = 0; i < num_generation; i++)
             {
                 Form1.Form1Instance.setLabel("Generation #" + i.ToString() + " Evaluating");
-                evaluateChrom(from, to);
-
+                evaluateChrom(from, to, i);
+                rouletteSelection();
+                crossOver();
+                mutation();
+                goToNextGeneration();
             }
         }
 
@@ -50,7 +53,7 @@ namespace BTCTickSim
             }
         }
 
-        private void evaluateChrom(int from, int to)
+        private void evaluateChrom(int from, int to, int n_g)
         {
             //do sim for all chromes
             eva = new List<double>();
@@ -93,6 +96,10 @@ namespace BTCTickSim
     .Where(ano => ano.Content >= max)
     .Select(ano => ano.Index).ToList();
             best_chrom_ind.Add(m[0]);
+
+            //display info
+            Form1.Form1Instance.setLabel("Generation #="+n_g.ToString());
+            Form1.Form1Instance.setLabel2("pl per min="+ac_list[m[0]].pl_per_min.ToString()+", num trade="+ ac_list[m[0]].num_trade.ToString()+", cum pl="+ ac_list[m[0]].cum_pl.ToString());
         }
 
         private void rouletteSelection()
@@ -116,9 +123,15 @@ namespace BTCTickSim
                 for(int j=1; j<board.Count; j++)
                 {
                     if (0 >= roulette_v && board[j] <= roulette_v)
-                        selected_chrom[i] = 0;
+                    {
+                        selected_chrom.Add(0);
+                        break;
+                    }
                     if (board[j - 1] > roulette_v && board[j] <= roulette_v)
-                        selected_chrom[i] = j; ;
+                    {
+                        selected_chrom.Add(j);
+                        break;
+                    }
                 }
             }
         }
@@ -147,13 +160,27 @@ namespace BTCTickSim
         private void mutation()
         {
             var ran = RandomProvider.getRandom();
+            Chrome c = new Chrome();
             for(int i=0; i<new_gene_chromes.Count; i++)
             {
                 if(i!=best_chrom_ind[best_chrom_ind.Count-1])
                 {
-                    if(ran.NextDouble() > )
+                    if(ran.NextDouble() > 0.9)
+                    {
+                        new_gene_chromes[i].Gene_exit_time_sec = (ran.NextDouble() > 0.7) ? c.getExitTimeSecGene() : new_gene_chromes[i].Gene_exit_time_sec;
+                        new_gene_chromes[i].Gene_kairi_term = (ran.NextDouble() > 0.7) ? c.getKairiTermGene() : new_gene_chromes[i].Gene_kairi_term;
+                        new_gene_chromes[i].Gene_entry_kairi = (ran.NextDouble() > 0.7) ? c.getEntryKairiGene() : new_gene_chromes[i].Gene_entry_kairi;
+                        new_gene_chromes[i].Gene_rikaku_percentage = (ran.NextDouble() > 0.7) ? c.getRikakuPercentageGene() : new_gene_chromes[i].Gene_rikaku_percentage;
+                    }
                 }
             }
+        }
+
+        private void goToNextGeneration()
+        {
+            chromes = new List<Chrome>();
+            for (int i = 0; i < new_gene_chromes.Count; i++)
+                chromes.Add(new_gene_chromes[i]);
         }
 
 
