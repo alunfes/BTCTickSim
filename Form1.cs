@@ -36,6 +36,12 @@ namespace BTCTickSim
             tm.start();
         }
 
+        private void buttonTest_Click(object sender, EventArgs e)
+        {
+            ThreadMaster tm = new ThreadMaster();
+            tm.startGA();
+        }
+
         #region Delegate
         private delegate void setLabel1Delegate(string text);
         public void setLabel(string text)
@@ -47,8 +53,19 @@ namespace BTCTickSim
             }
             this.label1.Text = text;
         }
-        #endregion
 
+        private delegate void setLabel2Delegate(string text);
+        public void setLabel2(string text)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new setLabel2Delegate(setLabel2), text);
+                return;
+            }
+            this.label2.Text = text;
+        }
+
+        #endregion
 
 
     }

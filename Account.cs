@@ -19,6 +19,7 @@ namespace BTCTickSim
         public int num_trade;
         public double win_rate;
         public double ave_pl;
+        public double pl_per_min;
 
         public List<double> unexe_price;
         public List<double> unexe_lot;
@@ -65,6 +66,7 @@ namespace BTCTickSim
             num_trade = 0;
             win_rate = 0;
             ave_pl = 0;
+            pl_per_min = 0;
 
             initializeUnexeData();
             initializeCancelAllData();
@@ -154,9 +156,12 @@ namespace BTCTickSim
             pl_log.Add(i, pl);
             position_log.Add(i, holding_position);
             lot_log.Add(i, ave_holding_lot);
+
             ave_pl = cum_pl / (double)num_trade;
             win_rate = win_rate / (double)num_trade;
             end_ind = i;
+            pl_per_min = cum_pl / Convert.ToDouble((TickData.time[end_ind] - TickData.time[start_ind]).Minutes);
+
             if (writelog)
                 writeLog2();
         }
@@ -454,6 +459,7 @@ namespace BTCTickSim
                 sw.Write("cum pl," + cum_pl.ToString());
                 sw.Write("win rate," + win_rate.ToString());
                 sw.Write("ave pl," + ave_pl.ToString());
+                sw.Write("pl_per_min," + pl_per_min.ToString());
                 sw.WriteLine("i,DateTime,Tick,Size,pl,cum pl,position,ave holding price,holding lot,action log");
 
                 for (int i = 0; i < TickData.time.Count - 1; i++)
