@@ -15,7 +15,6 @@ namespace BTCTickSim
         public List<int> selected_chrom;    
         public Dictionary<int, Account> ac_list;
         public List<Chrome> new_gene_chromes;
-
         private object lockobj = new object();
 
         public List<double> best_eva_log;
@@ -103,7 +102,9 @@ namespace BTCTickSim
             });
 
             //make list of pl_per_min, num trade
-            var lists = ac_list.Values.ToList();
+            List<Account> lists = new List<Account>();
+            for (int i = 0; i < chromes.Count; i++)
+                lists.Add(ac_list[i]);
             var pl_per_min = lists
                 .Select(x => x.pl_per_min);
             //var num_trade = lists
@@ -118,7 +119,7 @@ namespace BTCTickSim
             //regulate to 0-100 for pl_per_min and num_trade
             double pl_max_var = (max_pl_per_min - min_pl_per_min) / 100.0;
             //double num_max_var = (max_num_trade - min_num_trade) / 100.0;
-            for (int i = 0; i < ac_list.Count; i++)
+            for (int i = 0; i < lists.Count; i++)
             {
                 if (lists[i].cum_pl <= 0)
                     eva.Add(0);
