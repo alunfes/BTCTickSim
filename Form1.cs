@@ -65,8 +65,39 @@ namespace BTCTickSim
             this.label2.Text = text;
         }
 
+        private delegate void setLabel3Delegate(string text);
+        public void setLabel3(string text)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new setLabel3Delegate(setLabel3), text);
+                return;
+            }
+            this.label3.Text = text;
+        }
+
+        private delegate void addListBoxDelegate(string text);
+        public void addListBox(string text)
+        {
+            if(InvokeRequired)
+            {
+                Invoke(new addListBoxDelegate(addListBox), text);
+                return;
+            }
+            this.listBox1.Items.Add(text);
+            this.listBox1.TopIndex = this.listBox1.Items.Count-1;
+        }
+
+        private delegate void initializeListBoxDelegate();
+        public void initializeListBox()
+        {
+            if(InvokeRequired)
+            {
+                Invoke(new initializeListBoxDelegate(initializeListBox));
+                this.listBox1.Items.Clear();
+            }
+        }
+
         #endregion
-
-
     }
 }
