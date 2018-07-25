@@ -44,7 +44,7 @@ namespace BTCTickSim
                     var chro = ga.startGA(50, 10, from, to, false);
                     SIM s = new SIM();
                     var ac =  s.startContrarianSashine(from, to, chro.Gene_exit_time_sec, chro.Gene_kairi_term, chro.Gene_entry_kairi, chro.Gene_rikaku_percentage, false);
-                    var ac2 = s.startContrarianSashine(to, to+500000, chro.Gene_exit_time_sec, chro.Gene_kairi_term, chro.Gene_entry_kairi, chro.Gene_rikaku_percentage, false);
+                    var ac2 = s.startContrarianSashine(to, to+100000, chro.Gene_exit_time_sec, chro.Gene_kairi_term, chro.Gene_entry_kairi, chro.Gene_rikaku_percentage, false);
 
 
                     sw.WriteLine(from.ToString()+","+to.ToString()+","+ac.pl_per_min.ToString()+","+ac.cum_pl.ToString()+","+ac.num_trade.ToString()+","+ac.win_rate.ToString()+

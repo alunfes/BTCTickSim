@@ -160,7 +160,7 @@ namespace BTCTickSim
             ave_pl = cum_pl / (double)num_trade;
             win_rate = win_rate / (double)num_trade;
             end_ind = i;
-            pl_per_min = cum_pl / Convert.ToDouble((TickData.time[end_ind] - TickData.time[start_ind]).Minutes);
+            pl_per_min = cum_pl / Convert.ToDouble((TickData.time[end_ind] - TickData.time[start_ind]).TotalMinutes);
 
             if (writelog)
                 writeLog2();
