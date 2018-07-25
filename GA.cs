@@ -13,13 +13,13 @@ namespace BTCTickSim
         public List<Chrome> chromes;
         public List<double> eva;
         public List<int> selected_chrom;    
-        public Dictionary<int, Account> ac_list;
+        public Dictionary<int, AccountGA> ac_list;
         public List<Chrome> new_gene_chromes;
         private object lockobj = new object();
 
         public List<double> best_eva_log;
         public List<int> best_chrom_ind;
-        public List<Account> best_ac_log;
+        public List<AccountGA> best_ac_log;
 
         private int start_i;
         private int end_i;
@@ -27,7 +27,7 @@ namespace BTCTickSim
         private Stopwatch sw = new Stopwatch();
         public TimeSpan estimated_remaining_time;
 
-        public void addAcList(int i, Account ac)
+        public void addAcList(int i, AccountGA ac)
         {
             lock (lockobj)
                 ac_list.Add(i, ac);
@@ -45,6 +45,7 @@ namespace BTCTickSim
             generateRandomeChromes(num_chrom);
 
             //generation loop
+            double sec = 0;
             for (int i = 0; i < num_generation; i++)
             {
                 sw.Start();
@@ -58,8 +59,8 @@ namespace BTCTickSim
                 Form1.Form1Instance.addListBox("#"+i.ToString()+": eva="+best_eva_log[best_eva_log.Count-1].ToString()+", pl per min="+best_ac_log[best_ac_log.Count-1].pl_per_min.ToString());
 
                 sw.Stop();
-                double sec = sw.Elapsed.TotalSeconds * Convert.ToDouble(num_generation - i-1);
-                estimated_remaining_time = new TimeSpan(0, 0, Convert.ToInt32(sec));
+                sec += sw.Elapsed.TotalSeconds;
+                estimated_remaining_time = new TimeSpan(0, 0, Convert.ToInt32(Convert.ToDouble(num_generation - Convert.ToDouble(i+1)) * (sec / (Convert.ToDouble(i+1)))));
                 Form1.Form1Instance.setLabel2("Estimated Remaining Time to Complete=" + estimated_remaining_time.ToString());
             }
             Form1.Form1Instance.setLabel2("GA calculation was completed, writing log..");
@@ -75,9 +76,9 @@ namespace BTCTickSim
             eva = new List<double>();
             best_chrom_ind = new List<int>();
             selected_chrom = new List<int>();
-            ac_list = new Dictionary<int, Account>();
+            ac_list = new Dictionary<int, AccountGA>();
             new_gene_chromes = new List<Chrome>();
-            best_ac_log = new List<Account>();
+            best_ac_log = new List<AccountGA>();
             best_eva_log = new List<double>();
             estimated_remaining_time = new TimeSpan();
         }
@@ -95,14 +96,14 @@ namespace BTCTickSim
         {
             //do sim for all chromes
             eva = new List<double>();
-            ac_list = new Dictionary<int, Account>();
+            ac_list = new Dictionary<int, AccountGA>();
             Parallel.For(0, chromes.Count, i => {
-                SIM sim = new SIM();
-                addAcList(i, sim.startContrarianSashine(from, to, chromes[i].Gene_exit_time_sec, chromes[i].Gene_kairi_term, chromes[i].Gene_entry_kairi, chromes[i].Gene_rikaku_percentage, false));
+                SIMGA sim = new SIMGA();
+                addAcList(i, sim.startContrarianSashine(from, to, chromes[i].Gene_exit_time_sec, chromes[i].Gene_kairi_term, chromes[i].Gene_entry_kairi, chromes[i].Gene_rikaku_percentage));
             });
 
             //make list of pl_per_min, num trade
-            List<Account> lists = new List<Account>();
+            List<AccountGA> lists = new List<AccountGA>();
             for (int i = 0; i < chromes.Count; i++)
                 lists.Add(ac_list[i]);
             var pl_per_min = lists

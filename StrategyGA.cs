@@ -6,21 +6,13 @@ using System.Threading.Tasks;
 
 namespace BTCTickSim
 {
-    static class Strategy
+    class StrategyGA
     {
-        /*************************************************************************************/
-        /*entry when kairi > entry_kairi
-         * cancel all orders, stop price tracing order when opposite position entry sign was flagged
-         * place rikaku order when 0.05 is executed and sign is not changed
-         * exit when rikaku price was hit
-         * lot is always 0.05
-         * 
-        /*************************************************************************************/
-        public static DecisionData contrarianSashine(Account ac, int i, double exit_time_sec, int kairi_term, double entry_kairi, double rikaku_percentage)
+        public static DecisionData contrarianSashine(AccountGA ac, int i, double exit_time_sec, int kairi_term, double entry_kairi, double rikaku_percentage)
         {
             DecisionData dd = new DecisionData();
-            
-            double kairi = (TickData.price[i] - TickData.price[i - kairi_term])/TickData.price[i-kairi_term];
+
+            double kairi = (TickData.price[i] - TickData.price[i - kairi_term]) / TickData.price[i - kairi_term];
 
             string entry_sign = "";
             if (kairi >= entry_kairi)
@@ -28,7 +20,7 @@ namespace BTCTickSim
             else if (kairi <= -entry_kairi)
                 entry_sign = "Long";
 
-            if(entry_sign !="")
+            if (entry_sign != "")
             {
                 if (ac.holding_position == "None" && ac.price_tracing_order_flg == false)
                 {
@@ -42,7 +34,7 @@ namespace BTCTickSim
                 {
                     dd = makeDDForEntryPriceTracingOrder(i, entry_sign, true, ac.ave_holding_lot + 0.05);
                 }
-                else if(entry_sign == ac.holding_position && ac.unexe_position.Count == 0)
+                else if (entry_sign == ac.holding_position && ac.unexe_position.Count == 0)
                 {
                     dd.position = (entry_sign == "Long") ? "Short" : "Long";
                     dd.cancel_index = -1;
@@ -50,12 +42,12 @@ namespace BTCTickSim
                     dd.price = (ac.holding_position == "Long") ? Math.Round(ac.ave_holding_price * (1 + rikaku_percentage)) : Math.Round(ac.ave_holding_price * (1 - rikaku_percentage));
                     dd.lot = ac.ave_holding_lot;
                 }
-                else if(entry_sign == ac.holding_position && ac.unexe_position.Count == 0 && (TickData.time[i] - ac.last_entry_time).Seconds >= exit_time_sec)
+                else if (entry_sign == ac.holding_position && ac.unexe_position.Count == 0 && (TickData.time[i] - ac.last_entry_time).Seconds >= exit_time_sec)
                 {
                     dd = makeDDForEntryPriceTracingOrder(i, (ac.holding_position == "Long") ? "Short" : "Long", true, ac.ave_holding_lot);
                 }
             }
-            
+
             return dd;
         }
 

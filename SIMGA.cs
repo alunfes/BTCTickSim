@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace BTCTickSim
 {
-    class SIM
+    class SIMGA
     {
-        public Account startContrarianSashine(int from, int to, double exit_time_sec, int kairi_term, double entry_kairi, double rikaku, bool write_result)
+        public AccountGA startContrarianSashine(int from, int to, double exit_time_sec, int kairi_term, double entry_kairi, double rikaku)
         {
-            Account ac = new Account();
+            AccountGA ac = new AccountGA();
             for (int i = from; i < to; i++)
             {
-                var tdd = Strategy.contrarianSashine(ac, i, exit_time_sec, kairi_term, entry_kairi, rikaku);
+                var tdd = StrategyGA.contrarianSashine(ac, i, exit_time_sec, kairi_term, entry_kairi, rikaku);
                 if (tdd.price_tracing_order)
                 {
                     if (tdd.position == "Long" || tdd.position == "Short")
@@ -42,8 +42,12 @@ namespace BTCTickSim
                 }
                 ac.moveToNext(i);
             }
-            ac.lastDayOperation(to, write_result);
+            ac.lastDayOperation(to);
             return ac;
         }
+
+
+
+
     }
 }
