@@ -36,6 +36,7 @@ namespace BTCTickSim
 
         public Chrome startGA(int num_chrom, int num_generation, int from, int to, bool writelog)
         {
+            //Form1.Form1Instance.initializeListBox();
             start_i = from;
             end_i = to;
 

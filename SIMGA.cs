@@ -45,9 +45,5 @@ namespace BTCTickSim
             ac.lastDayOperation(to);
             return ac;
         }
-
-
-
-
     }
 }

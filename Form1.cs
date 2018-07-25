@@ -42,6 +42,12 @@ namespace BTCTickSim
             tm.startGA();
         }
 
+        private void buttonMultiGASIM_Click(object sender, EventArgs e)
+        {
+            ThreadMaster tm = new ThreadMaster();
+            tm.startMultiGA();
+        }
+
         #region Delegate
         private delegate void setLabel1Delegate(string text);
         public void setLabel(string text)
@@ -94,10 +100,13 @@ namespace BTCTickSim
             if(InvokeRequired)
             {
                 Invoke(new initializeListBoxDelegate(initializeListBox));
-                this.listBox1.Items.Clear();
+                if(this.listBox1.Items.Count > 0)
+                    this.listBox1.Items.Clear();
             }
         }
 
         #endregion
+
+        
     }
 }

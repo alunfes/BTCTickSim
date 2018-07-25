@@ -34,6 +34,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.buttonMultiGASIM = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // buttonStart
@@ -94,11 +95,22 @@
             this.label3.TabIndex = 5;
             this.label3.Text = "label3";
             // 
+            // buttonMultiGASIM
+            // 
+            this.buttonMultiGASIM.Location = new System.Drawing.Point(49, 439);
+            this.buttonMultiGASIM.Name = "buttonMultiGASIM";
+            this.buttonMultiGASIM.Size = new System.Drawing.Size(194, 83);
+            this.buttonMultiGASIM.TabIndex = 6;
+            this.buttonMultiGASIM.Text = "Multi GA SIM";
+            this.buttonMultiGASIM.UseVisualStyleBackColor = true;
+            this.buttonMultiGASIM.Click += new System.EventHandler(this.buttonMultiGASIM_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1453, 706);
+            this.Controls.Add(this.buttonMultiGASIM);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.label2);
@@ -121,6 +133,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ListBox listBox1;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button buttonMultiGASIM;
     }
 }
 
