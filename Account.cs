@@ -226,7 +226,7 @@ namespace BTCTickSim
                 }
                 else
                 {
-                    if ((TickData.time[i] - price_tracing_order_dt).Seconds >= order_time_lag * 2)
+                    if ((TickData.time[i] - price_tracing_order_dt).TotalSeconds >= order_time_lag * 2)
                         cancelAllOrders(i);
                 }
             }
@@ -279,7 +279,7 @@ namespace BTCTickSim
         {
             for (int j = 0; j < unexe_position.Count; j++)
             {
-                if ((TickData.time[i] - unexe_time[j]).Seconds >= order_time_lag)
+                if ((TickData.time[i] - unexe_time[j]).TotalSeconds >= order_time_lag)
                 {
                     if (unexe_position[j] == "Long")
                     {
@@ -299,7 +299,7 @@ namespace BTCTickSim
         {
             if (cancel_all_orders)
             {
-                if ((TickData.time[i] - cancel_all_order_time).Seconds >= order_time_lag)
+                if ((TickData.time[i] - cancel_all_order_time).TotalSeconds >= order_time_lag)
                     executeCancelAllOrders(i);
             }
             else
@@ -307,7 +307,7 @@ namespace BTCTickSim
                 string cancelled_index = "";
                 for (int j = 0; j < unexe_cancel.Count; j++)
                 {
-                    if (unexe_cancel[j] && (TickData.time[i] - unexe_time[j]).Seconds >= order_time_lag)
+                    if (unexe_cancel[j] && (TickData.time[i] - unexe_time[j]).TotalSeconds >= order_time_lag)
                     {
                         removeUnexeInd(j);
                         cancelled_index += j.ToString() + ",";

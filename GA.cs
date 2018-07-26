@@ -93,6 +93,12 @@ namespace BTCTickSim
             }
         }
 
+
+        /*eva = performance + stability+ (only half late performance)
+         * performance = pl per min
+         * stability = total minus cum_pl (sum of cum_pl when it's down from previous)
+         * 
+         */
         private void evaluateChrom(int from, int to, int n_g)
         {
             //do sim for all chromes
@@ -127,8 +133,13 @@ namespace BTCTickSim
                     eva.Add(0);
                 else
                 {
-                    eva.Add(lists[i].pl_per_min * 1440);
-                    //double eva_num = (ac_list[i].num_trade - min_num_trade) / num_max_var;
+                    int period = Convert.ToInt32(Math.Round(lists[i].cum_pl_log.Count * 0.8));
+                    if (lists[i].cum_pl_log[period] - lists[i].cum_pl_log[lists[i].cum_pl_log.Count - 1] <= 0)
+                    {
+                        eva.Add(lists[i].pl_per_min * 1440);
+                    }
+                    else
+                        eva.Add(0);
                 }
             }
 

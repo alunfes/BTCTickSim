@@ -42,6 +42,8 @@ namespace BTCTickSim
         public DateTime last_entry_time;
         public int last_entry_i;
         public string holding_position; //Long, Short, None
+
+        public List<double> cum_pl_log;
         
 
         public AccountGA()
@@ -55,6 +57,8 @@ namespace BTCTickSim
             win_rate = 0;
             ave_pl = 0;
             pl_per_min = 0;
+
+            cum_pl_log = new List<double>();
 
             initializeUnexeData();
             initializeCancelAllData();
@@ -185,7 +189,7 @@ namespace BTCTickSim
                 }
                 else
                 {
-                    if ((TickData.time[i] - price_tracing_order_dt).Seconds >= order_time_lag * 2)
+                    if ((TickData.time[i] - price_tracing_order_dt).TotalSeconds >= order_time_lag * 2)
                         cancelAllOrders(i);
                 }
             }
@@ -235,7 +239,7 @@ namespace BTCTickSim
         {
             for (int j = 0; j < unexe_position.Count; j++)
             {
-                if ((TickData.time[i] - unexe_time[j]).Seconds >= order_time_lag)
+                if ((TickData.time[i] - unexe_time[j]).TotalSeconds >= order_time_lag)
                 {
                     if (unexe_position[j] == "Long")
                     {
@@ -255,7 +259,7 @@ namespace BTCTickSim
         {
             if (cancel_all_orders)
             {
-                if ((TickData.time[i] - cancel_all_order_time).Seconds >= order_time_lag)
+                if ((TickData.time[i] - cancel_all_order_time).TotalSeconds >= order_time_lag)
                     executeCancelAllOrders(i);
             }
             else
@@ -263,7 +267,7 @@ namespace BTCTickSim
                 string cancelled_index = "";
                 for (int j = 0; j < unexe_cancel.Count; j++)
                 {
-                    if (unexe_cancel[j] && (TickData.time[i] - unexe_time[j]).Seconds >= order_time_lag)
+                    if (unexe_cancel[j] && (TickData.time[i] - unexe_time[j]).TotalSeconds >= order_time_lag)
                     {
                         removeUnexeInd(j);
                         cancelled_index += j.ToString() + ",";
@@ -397,6 +401,7 @@ namespace BTCTickSim
             if (pl > 0)
                 win_rate++;
             cum_pl += pl;
+            cum_pl_log.Add(cum_pl);
         }
     }
 }

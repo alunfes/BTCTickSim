@@ -41,7 +41,7 @@ namespace BTCTickSim
                     int from = TickData.time.Count - 10000000 + (i * 500000);
                     int to = TickData.time.Count - 9500000 + (i * 500000);
                     Form1.Form1Instance.setLabel3("#"+i.ToString()+":doing for " + from.ToString() + " - " + to.ToString());
-                    var chro = ga.startGA(50, 10, from, to, false);
+                    var chro = ga.startGA(20, 25, from, to, false);
                     SIM s = new SIM();
                     var ac =  s.startContrarianSashine(from, to, chro.Gene_exit_time_sec, chro.Gene_kairi_term, chro.Gene_entry_kairi, chro.Gene_rikaku_percentage, false);
                     var ac2 = s.startContrarianSashine(to, to+100000, chro.Gene_exit_time_sec, chro.Gene_kairi_term, chro.Gene_entry_kairi, chro.Gene_rikaku_percentage, false);

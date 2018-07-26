@@ -42,7 +42,7 @@ namespace BTCTickSim
                     dd.price = (ac.holding_position == "Long") ? Math.Round(ac.ave_holding_price * (1 + rikaku_percentage)) : Math.Round(ac.ave_holding_price * (1 - rikaku_percentage));
                     dd.lot = ac.ave_holding_lot;
                 }
-                else if (entry_sign == ac.holding_position && ac.unexe_position.Count == 0 && (TickData.time[i] - ac.last_entry_time).Seconds >= exit_time_sec)
+                else if (entry_sign == ac.holding_position && ac.unexe_position.Count == 0 && (TickData.time[i] - ac.last_entry_time).TotalSeconds >= exit_time_sec)
                 {
                     dd = makeDDForEntryPriceTracingOrder(i, (ac.holding_position == "Long") ? "Short" : "Long", true, ac.ave_holding_lot);
                 }
