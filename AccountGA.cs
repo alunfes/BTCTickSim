@@ -44,7 +44,7 @@ namespace BTCTickSim
         public string holding_position; //Long, Short, None
 
         public List<double> cum_pl_log;
-        
+        public List<double> total_pl_log;
 
         public AccountGA()
         {
@@ -58,7 +58,8 @@ namespace BTCTickSim
             ave_pl = 0;
             pl_per_min = 0;
 
-            cum_pl_log = new List<double>();
+            //cum_pl_log = new List<double>();
+            total_pl_log = new List<double>();
 
             initializeUnexeData();
             initializeCancelAllData();
@@ -117,6 +118,7 @@ namespace BTCTickSim
             checkCancel(i);
             updatePriceTracingOrder(i);
             pl = calcPL(i);
+            total_pl_log.Add(pl + cum_pl);
             start_ind = (i < start_ind) ? i : start_ind;
         }
 
@@ -401,7 +403,7 @@ namespace BTCTickSim
             if (pl > 0)
                 win_rate++;
             cum_pl += pl;
-            cum_pl_log.Add(cum_pl);
+            //cum_pl_log.Add(cum_pl);
         }
     }
 }

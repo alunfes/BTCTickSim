@@ -35,6 +35,7 @@
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.label3 = new System.Windows.Forms.Label();
             this.buttonMultiGASIM = new System.Windows.Forms.Button();
+            this.buttonContiGASim = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // buttonStart
@@ -105,11 +106,22 @@
             this.buttonMultiGASIM.UseVisualStyleBackColor = true;
             this.buttonMultiGASIM.Click += new System.EventHandler(this.buttonMultiGASIM_Click);
             // 
+            // buttonContiGASim
+            // 
+            this.buttonContiGASim.Location = new System.Drawing.Point(48, 568);
+            this.buttonContiGASim.Name = "buttonContiGASim";
+            this.buttonContiGASim.Size = new System.Drawing.Size(194, 83);
+            this.buttonContiGASim.TabIndex = 7;
+            this.buttonContiGASim.Text = "Conti GA SIM";
+            this.buttonContiGASim.UseVisualStyleBackColor = true;
+            this.buttonContiGASim.Click += new System.EventHandler(this.buttonContiGASim_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1453, 706);
+            this.Controls.Add(this.buttonContiGASim);
             this.Controls.Add(this.buttonMultiGASIM);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.listBox1);
@@ -134,6 +146,7 @@
         private System.Windows.Forms.ListBox listBox1;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button buttonMultiGASIM;
+        private System.Windows.Forms.Button buttonContiGASim;
     }
 }
 

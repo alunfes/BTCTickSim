@@ -48,6 +48,12 @@ namespace BTCTickSim
             tm.startMultiGA();
         }
 
+        private void buttonContiGASim_Click(object sender, EventArgs e)
+        {
+            ThreadMaster th = new ThreadMaster();
+            th.startContiGASIm();
+        }
+
         #region Delegate
         private delegate void setLabel1Delegate(string text);
         public void setLabel(string text)
@@ -104,6 +110,7 @@ namespace BTCTickSim
                     this.listBox1.Items.Clear();
             }
         }
+
 
         #endregion
 

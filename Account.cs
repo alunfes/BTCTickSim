@@ -11,8 +11,8 @@ namespace BTCTickSim
     {
         private double order_time_lag = 1.0;
 
-        private int start_ind;
-        private int end_ind;
+        public int start_ind;
+        public int end_ind;
 
         public double pl;
         public double cum_pl;
@@ -55,6 +55,7 @@ namespace BTCTickSim
         private Dictionary<int, string> action_log;
         private Dictionary<string, string> action_log2;
         private int action_log_num;
+        public Dictionary<int, double> total_pl_log;
 
         public Account()
         {
@@ -80,6 +81,7 @@ namespace BTCTickSim
             holding_price_log = new Dictionary<int, double>();
             action_log = new Dictionary<int, string>();
             action_log2 = new Dictionary<string, string>();
+            total_pl_log = new Dictionary<int, double>();
             action_log_num = 0;
         }
 
@@ -127,7 +129,7 @@ namespace BTCTickSim
             unexe_cancel.RemoveAt(unexe_ind);
         }
 
-        private void takeActionLog(int i, string v)
+        public void takeActionLog(int i, string v)
         {
             action_log2.Add(i.ToString() + "-" + action_log_num.ToString(), v);
             action_log_num++;
@@ -140,6 +142,7 @@ namespace BTCTickSim
             updatePriceTracingOrder(i);
             pl = calcPL(i);
             pl_log.Add(i, pl);
+            total_pl_log.Add(i, pl + cum_pl);
             if (cum_pl_log.ContainsKey(i) == false) cum_pl_log.Add(i, cum_pl);
             position_log.Add(i, holding_position);
             lot_log.Add(i, ave_holding_lot);
@@ -156,6 +159,7 @@ namespace BTCTickSim
             pl_log.Add(i, pl);
             position_log.Add(i, holding_position);
             lot_log.Add(i, ave_holding_lot);
+            total_pl_log.Add(i, pl + cum_pl);
 
             ave_pl = cum_pl / (double)num_trade;
             win_rate = win_rate / (double)num_trade;
@@ -484,7 +488,7 @@ namespace BTCTickSim
                 sw.WriteLine("cum pl," + cum_pl.ToString());
                 sw.WriteLine("win rate," + win_rate.ToString());
                 sw.WriteLine("ave pl," + ave_pl.ToString());
-                sw.WriteLine("i,DateTime,Tick,Size,pl,cum pl,position,ave holding price,holding lot,action log");
+                sw.WriteLine("i,DateTime,Tick,Size,pl,cum pl,total pl,position,ave holding price,holding lot,action log");
 
                 for (int i = start_ind; i <= end_ind; i++)
                 {
@@ -492,6 +496,7 @@ namespace BTCTickSim
 
                     line += pl_log.ContainsKey(i) ? pl_log[i] + "," : " ,";
                     line += cum_pl_log.ContainsKey(i) ? cum_pl_log[i] + "," : " ,";
+                    line += total_pl_log.ContainsKey(i) ? total_pl_log[i] + "," : " ,";
                     line += position_log.ContainsKey(i) ? position_log[i] + "," : " ,";
                     line += holding_price_log.ContainsKey(i) ? holding_price_log[i] + "," : " ,";
                     line += lot_log.ContainsKey(i) ? lot_log[i] + "," : " ,";
