@@ -36,6 +36,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.buttonMultiGASIM = new System.Windows.Forms.Button();
             this.buttonContiGASim = new System.Windows.Forms.Button();
+            this.listBox2 = new System.Windows.Forms.ListBox();
             this.SuspendLayout();
             // 
             // buttonStart
@@ -44,7 +45,7 @@
             this.buttonStart.Name = "buttonStart";
             this.buttonStart.Size = new System.Drawing.Size(194, 83);
             this.buttonStart.TabIndex = 0;
-            this.buttonStart.Text = "buttonStart";
+            this.buttonStart.Text = "Best Chrom SIM";
             this.buttonStart.UseVisualStyleBackColor = true;
             this.buttonStart.Click += new System.EventHandler(this.buttonStart_Click);
             // 
@@ -63,7 +64,7 @@
             this.buttonTest.Name = "buttonTest";
             this.buttonTest.Size = new System.Drawing.Size(194, 83);
             this.buttonTest.TabIndex = 2;
-            this.buttonTest.Text = "Test";
+            this.buttonTest.Text = "GA";
             this.buttonTest.UseVisualStyleBackColor = true;
             this.buttonTest.Click += new System.EventHandler(this.buttonTest_Click);
             // 
@@ -81,10 +82,10 @@
             this.listBox1.FormattingEnabled = true;
             this.listBox1.HorizontalScrollbar = true;
             this.listBox1.ItemHeight = 24;
-            this.listBox1.Location = new System.Drawing.Point(248, 184);
+            this.listBox1.Location = new System.Drawing.Point(303, 182);
             this.listBox1.Name = "listBox1";
             this.listBox1.ScrollAlwaysVisible = true;
-            this.listBox1.Size = new System.Drawing.Size(1180, 508);
+            this.listBox1.Size = new System.Drawing.Size(1180, 340);
             this.listBox1.TabIndex = 4;
             // 
             // label3
@@ -116,11 +117,23 @@
             this.buttonContiGASim.UseVisualStyleBackColor = true;
             this.buttonContiGASim.Click += new System.EventHandler(this.buttonContiGASim_Click);
             // 
+            // listBox2
+            // 
+            this.listBox2.FormattingEnabled = true;
+            this.listBox2.HorizontalScrollbar = true;
+            this.listBox2.ItemHeight = 24;
+            this.listBox2.Location = new System.Drawing.Point(303, 528);
+            this.listBox2.Name = "listBox2";
+            this.listBox2.ScrollAlwaysVisible = true;
+            this.listBox2.Size = new System.Drawing.Size(1180, 340);
+            this.listBox2.TabIndex = 8;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1453, 706);
+            this.ClientSize = new System.Drawing.Size(1592, 928);
+            this.Controls.Add(this.listBox2);
             this.Controls.Add(this.buttonContiGASim);
             this.Controls.Add(this.buttonMultiGASIM);
             this.Controls.Add(this.label3);
@@ -131,6 +144,7 @@
             this.Controls.Add(this.buttonStart);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.TopMost = true;
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -147,6 +161,7 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button buttonMultiGASIM;
         private System.Windows.Forms.Button buttonContiGASim;
+        private System.Windows.Forms.ListBox listBox2;
     }
 }
 

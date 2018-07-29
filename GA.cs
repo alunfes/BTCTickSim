@@ -28,7 +28,6 @@ namespace BTCTickSim
         private Stopwatch sw = new Stopwatch();
         public TimeSpan estimated_remaining_time;
 
-        public int worst_chrom_ind;
 
         public void addAcList(int i, AccountGA ac)
         {
@@ -87,7 +86,6 @@ namespace BTCTickSim
             best_eva_log = new List<double>();
             estimated_remaining_time = new TimeSpan();
             best_stability_log = new List<double>();
-            worst_chrom_ind = -1;
         }
 
         private void generateRandomeChromes(int num)
@@ -101,7 +99,7 @@ namespace BTCTickSim
 
 
         /*eva = performance + stability+ (only half late performance)
-         * performance = pl per min
+         * performance = pl_per_min(1000) + stability(300) + num_trade(150) + later_p(150)
          * stability = total minus cum_pl (sum of cum_pl when it's down from previous)
          * 
          */
@@ -124,15 +122,17 @@ namespace BTCTickSim
             //cacl performance measure
             double min_pl_per_min = pl_per_min.Min();
             List<double> converted_pl_per_min = new List<double>();
+            double max_pl = lists.Select(x => x.pl_per_min).ToList().Max() - min_pl_per_min;
+            double pl_upper_limit = 1000;
             foreach (var v in lists)
             {
-                //converted_pl_per_min.Add((v.pl_per_min - min_pl_per_min) * v.num_trade);
-                converted_pl_per_min.Add(v.pl_per_min - min_pl_per_min);
+                converted_pl_per_min.Add((v.pl_per_min - min_pl_per_min) * (pl_upper_limit/max_pl));
             }
-            var max_converted_pl = converted_pl_per_min.Max();
+            
 
             //calc stability measure
             List<double> stability = new List<double>();
+            double stability_upper_limit = 300;
             foreach (var v in lists)
             {
                 double s = 0;
@@ -145,21 +145,49 @@ namespace BTCTickSim
                 stability.Add(s/num);
             }
             var min_stability = stability.Min();
+            double max_s = stability.Max() - min_stability;
             for (int i = 0; i < stability.Count; i++)
             {
-                //stability[i] = (stability[i] - min_stability) * lists[i].num_trade;
-                stability[i] = (stability[i] - min_stability);
+                stability[i] = (stability[i] - min_stability) * stability_upper_limit/max_s;
             }
-            double max_s = stability.Max();
-            double max_num_trade = lists.Select(p => p.num_trade).ToString().Max();
-            for(int i=0; i<stability.Count; i++)
+            
+
+            //calc for num trade measure
+            var num_trade = lists.Select(w => w.num_trade).ToList();
+            double min_num_trade = num_trade.Min();
+            double num_upper_limit = 150;
+            double max_num_trade = num_trade.Max() - min_num_trade;
+            List<double> num_trade_eva = new List<double>();
+            for (int i = 0; i < lists.Count; i++)
+                num_trade_eva.Add( (lists[i].num_trade - min_num_trade) * (num_upper_limit/max_num_trade));
+
+            /*
+            //calc for later performance measure
+            List<double> later_performance = new List<double>();
+            for (int i = 0; i < lists.Count; i++)
             {
-                //stability[i] = stability[i] * (max_converted_pl / max_s) * lists[i].num_trade / max_num_trade;
-                stability[i] = stability[i] * (max_converted_pl / max_s);
+                int n = lists[i].total_pl_log.Count - 1;
+                int nn = Convert.ToInt32(Math.Truncate(n * 0.8));
+                double tmp_ini = 100;
+                var lp = (lists[i].total_pl_log[n] - lists[i].total_pl_log[nn]) / (lists[i].total_pl_log[nn]+ tmp_ini);
+                var fp = (lists[i].total_pl_log[nn] - lists[i].total_pl_log[0]) / (lists[i].total_pl_log[0]+tmp_ini);
+                later_performance.Add(lp/fp);
             }
+            //var lp_max = later_performance.Max();
+            
+            var lp_min = later_performance.Min();
+            double lp_upper_limit = 150;
+            double max_lp = later_performance.Max() - lp_min;
+            for (int i = 0; i < later_performance.Count; i++)
+                later_performance[i] = (later_performance[i] - lp_min) * (lp_upper_limit / max_lp);
+                */
+
 
             for (int i = 0; i < lists.Count; i++)
-                eva.Add(converted_pl_per_min[i] + stability[i] * 0.5);
+            {
+                eva.Add(converted_pl_per_min[i] + stability[i] + num_trade_eva[i]);
+            }
+                //eva.Add( converted_pl_per_min[i] + stability[i] + num_trade_eva[i] + later_performance[i]);
 
             
             //check for max eva index
@@ -171,13 +199,6 @@ namespace BTCTickSim
             best_eva_log.Add(eva[m[0]]);
             best_ac_log.Add(lists[m[0]]);
             best_stability_log.Add(stability[m[0]]);
-
-
-            double min = eva.Min();
-            var mm = eva.Select((p, i) => new { Content = p, Index = i })
-    .Where(ano => ano.Content >= max)
-    .Select(ano => ano.Index).ToList();
-            worst_chrom_ind = mm[0];
 
             //display info
             Form1.Form1Instance.setLabel2("pl per min="+Math.Round(ac_list[m[0]].pl_per_min,2).ToString()+", num trade="+ ac_list[m[0]].num_trade.ToString()+", cum pl="+ Math.Round(ac_list[m[0]].cum_pl).ToString());
@@ -223,7 +244,7 @@ namespace BTCTickSim
             var ran = RandomProvider.getRandom();
             for(int i=0; i<chromes.Count; i++)
             {
-                if (i != best_chrom_ind[best_chrom_ind.Count - 1] && i != worst_chrom_ind)
+                if (i != best_chrom_ind[best_chrom_ind.Count - 1])
                 {
                     var c = new Chrome();
                     c.Gene_exit_time_sec = (ran.NextDouble() > 0.5) ? chromes[selected_chrom[i]].Gene_exit_time_sec : chromes[i].Gene_exit_time_sec;
@@ -243,7 +264,7 @@ namespace BTCTickSim
             Chrome c = new Chrome();
             for(int i=0; i<new_gene_chromes.Count; i++)
             {
-                if(i!=best_chrom_ind[best_chrom_ind.Count-1] && i != worst_chrom_ind)
+                if(i!=best_chrom_ind[best_chrom_ind.Count-1])
                 {
                     if(ran.NextDouble() > 0.1)
                     {

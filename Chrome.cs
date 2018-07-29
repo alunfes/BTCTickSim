@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace BTCTickSim
 {
@@ -52,6 +53,21 @@ namespace BTCTickSim
         {
             var r = RandomProvider.getRandom();
             return Convert.ToDouble(r.Next(5, 151)) / 10000.0;
+        }
+
+        public void readBestChromFile()
+        {
+            using (StreamReader sr = new StreamReader("./best chrome gene.csv", Encoding.Default))
+            {
+                for (int i = 0; i < 3; i++)
+                    sr.ReadLine();
+                string line = sr.ReadLine();
+                var ele = line.Split(',');
+                Gene_exit_time_sec = Convert.ToInt32( ele[0]);
+                Gene_kairi_term = Convert.ToInt32(ele[1]);
+                Gene_entry_kairi = Convert.ToDouble(ele[2]);
+                Gene_rikaku_percentage = Convert.ToDouble(ele[3]);
+            }
         }
     }
 }

@@ -10,8 +10,8 @@ namespace BTCTickSim
     {
         private double order_time_lag = 1.0;
 
-        private int start_ind;
-        private int end_ind;
+        public int start_ind;
+        public int end_ind;
 
         public double pl;
         public double cum_pl;

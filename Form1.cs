@@ -106,14 +106,24 @@ namespace BTCTickSim
             if(InvokeRequired)
             {
                 Invoke(new initializeListBoxDelegate(initializeListBox));
-                if(this.listBox1.Items.Count > 0)
                     this.listBox1.Items.Clear();
             }
         }
 
+        private delegate void addListBox2Delegate(string text);
+        public void addListBox2(string text)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new addListBox2Delegate(addListBox2), text);
+                return;
+            }
+            this.listBox2.Items.Add(text);
+            this.listBox2.TopIndex = this.listBox2.Items.Count - 1;
+        }
 
         #endregion
 
-        
+
     }
 }
