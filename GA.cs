@@ -12,7 +12,7 @@ namespace BTCTickSim
     {
         public List<Chrome> chromes;
         public List<double> eva;
-        public List<int> selected_chrom;    
+        public List<int> selected_chrom;
         public Dictionary<int, AccountGA> ac_list;
         public List<Chrome> new_gene_chromes;
         private object lockobj = new object();
@@ -28,6 +28,10 @@ namespace BTCTickSim
         private Stopwatch sw = new Stopwatch();
         public TimeSpan estimated_remaining_time;
 
+        public double base_total_eva;
+        public double base_pl_eva;
+        public double base_stability_eva;
+        public double base_num_eva;
 
         public void addAcList(int i, AccountGA ac)
         {
@@ -42,8 +46,8 @@ namespace BTCTickSim
             start_i = from;
             end_i = to;
 
-            Form1.Form1Instance.setLabel("GA - from:"+TickData.time[from].ToString() + " to:"+TickData.time[to].ToString());
-            
+            Form1.Form1Instance.setLabel("GA - from:" + TickData.time[from].ToString() + " to:" + TickData.time[to].ToString());
+
             initialize();
             generateRandomeChromes(num_chrom);
 
@@ -59,12 +63,12 @@ namespace BTCTickSim
                 mutation();
                 goToNextGeneration();
 
-                Form1.Form1Instance.addListBox("#"+i.ToString()+": eva="+Math.Round(best_eva_log[best_eva_log.Count-1],2).ToString()+", pl per min="+ Math.Round(best_ac_log[best_ac_log.Count-1].pl_per_min,2).ToString()
-                    +", num trade="+ best_ac_log[best_ac_log.Count - 1].num_trade.ToString()+", Win Rate="+ Math.Round(best_ac_log[best_ac_log.Count - 1].win_rate,2).ToString());
+                Form1.Form1Instance.addListBox("#" + i.ToString() + ": eva=" + Math.Round(best_eva_log[best_eva_log.Count - 1], 2).ToString() + ", pl per min=" + Math.Round(best_ac_log[best_ac_log.Count - 1].pl_per_min, 2).ToString()
+                    + ", num trade=" + best_ac_log[best_ac_log.Count - 1].num_trade.ToString() + ", Win Rate=" + Math.Round(best_ac_log[best_ac_log.Count - 1].win_rate, 2).ToString());
 
                 sw.Stop();
                 sec += sw.Elapsed.TotalSeconds;
-                estimated_remaining_time = new TimeSpan(0, 0, Convert.ToInt32(Convert.ToDouble(num_generation - Convert.ToDouble(i+1)) * (sec / (Convert.ToDouble(i+1)))));
+                estimated_remaining_time = new TimeSpan(0, 0, Convert.ToInt32(Convert.ToDouble(num_generation - Convert.ToDouble(i + 1)) * (sec / (Convert.ToDouble(i + 1)))));
                 Form1.Form1Instance.setLabel2("Estimated Remaining Time to Complete=" + estimated_remaining_time.ToString());
             }
             Form1.Form1Instance.setLabel2("GA calculation was completed, writing log..");
@@ -86,6 +90,11 @@ namespace BTCTickSim
             best_eva_log = new List<double>();
             estimated_remaining_time = new TimeSpan();
             best_stability_log = new List<double>();
+
+            base_total_eva = 0;
+            base_pl_eva = 0;
+            base_stability_eva = 0;
+            base_num_eva = 0;
         }
 
         private void generateRandomeChromes(int num)
@@ -99,11 +108,12 @@ namespace BTCTickSim
 
 
         /*eva = performance + stability+ (only half late performance)
-         * performance = pl_per_min(1000) + stability(300) + num_trade(150) + later_p(150)
-         * stability = total minus cum_pl (sum of cum_pl when it's down from previous)
+         * eva = pl_per_min(1000) + stability(300) + num_trade(150) + later_p(150)
+         * perfoamnce = pl_per_min -min      (take only plus value
+         * stability = sum of diff from line from 0 to max_total_pl
          * 
          */
-        private void evaluateChrom(int from, int to, int n_g)
+        private void evaluateChrom(int from, int to, int num_generation)
         {
             //do sim for all chromes
             eva = new List<double>();
@@ -112,7 +122,7 @@ namespace BTCTickSim
                 SIMGA sim = new SIMGA();
                 addAcList(i, sim.startContrarianSashine(from, to, chromes[i].Gene_exit_time_sec, chromes[i].Gene_kairi_term, chromes[i].Gene_entry_kairi, chromes[i].Gene_rikaku_percentage));
             });
-            
+
             List<AccountGA> lists = new List<AccountGA>();
             for (int i = 0; i < chromes.Count; i++)
                 lists.Add(ac_list[i]);
@@ -122,35 +132,43 @@ namespace BTCTickSim
             //cacl performance measure
             double min_pl_per_min = pl_per_min.Min();
             List<double> converted_pl_per_min = new List<double>();
-            double max_pl = lists.Select(x => x.pl_per_min).ToList().Max() - min_pl_per_min;
+            double max_pl = pl_per_min.Max() - min_pl_per_min;
             double pl_upper_limit = 1000;
             foreach (var v in lists)
             {
-                converted_pl_per_min.Add((v.pl_per_min - min_pl_per_min) * (pl_upper_limit/max_pl));
+                converted_pl_per_min.Add((v.pl_per_min - min_pl_per_min) * (pl_upper_limit / max_pl));
             }
-            
+
 
             //calc stability measure
             List<double> stability = new List<double>();
+            double max_total_pl = 0;
+            foreach (var v in lists)
+                max_total_pl = (v.total_pl_log[v.end_ind] > max_total_pl) ? v.total_pl_log[v.end_ind] : max_total_pl;
             double stability_upper_limit = 300;
+            double max_pl_incli = max_total_pl / (lists[0].end_ind - lists[0].start_ind);
             foreach (var v in lists)
             {
                 double s = 0;
                 double num = 0;
-                for (int i = 1; i < v.total_pl_log.Count; i++)
+                for (int i = v.start_ind; i<=v.end_ind; i++)
                 {
-                    s += ((v.total_pl_log[i] - v.total_pl_log[i - 1] < 0) ? v.total_pl_log[i] - v.total_pl_log[i - 1] : 0);
+                    s += ((v.total_pl_log[i] - (max_total_pl * i) < 0) ? v.total_pl_log[i] - (max_total_pl * i) : 0);
                     num++;
                 }
-                stability.Add(s/num);
+                stability.Add(s);
             }
             var min_stability = stability.Min();
-            double max_s = stability.Max() - min_stability;
+            for (int i = 0; i < stability.Count; i++)
+                stability[i] = stability[i] - min_stability;
+
+            double max_s = stability.Max();
+            List<double> converted_stability = new List<double>();
             for (int i = 0; i < stability.Count; i++)
             {
-                stability[i] = (stability[i] - min_stability) * stability_upper_limit/max_s;
+                converted_stability.Add(stability[i] * stability_upper_limit / max_s);
             }
-            
+
 
             //calc for num trade measure
             var num_trade = lists.Select(w => w.num_trade).ToList();
@@ -159,7 +177,7 @@ namespace BTCTickSim
             double max_num_trade = num_trade.Max() - min_num_trade;
             List<double> num_trade_eva = new List<double>();
             for (int i = 0; i < lists.Count; i++)
-                num_trade_eva.Add( (lists[i].num_trade - min_num_trade) * (num_upper_limit/max_num_trade));
+                num_trade_eva.Add((lists[i].num_trade - min_num_trade) * (num_upper_limit / max_num_trade));
 
             /*
             //calc for later performance measure
@@ -182,14 +200,20 @@ namespace BTCTickSim
                 later_performance[i] = (later_performance[i] - lp_min) * (lp_upper_limit / max_lp);
                 */
 
+            if (num_generation == 0)
+            {
+                base_pl_eva = pl_per_min.Max();
+                base_stability_eva = stability.Max();
+                base_num_eva = num_trade.Max();
+            }
 
             for (int i = 0; i < lists.Count; i++)
             {
                 eva.Add(converted_pl_per_min[i] + stability[i] + num_trade_eva[i]);
             }
-                //eva.Add( converted_pl_per_min[i] + stability[i] + num_trade_eva[i] + later_performance[i]);
+            //eva.Add( converted_pl_per_min[i] + stability[i] + num_trade_eva[i] + later_performance[i]);
 
-            
+
             //check for max eva index
             double max = eva.Max();
             var m = eva.Select((p, i) => new { Content = p, Index = i })
@@ -201,7 +225,7 @@ namespace BTCTickSim
             best_stability_log.Add(stability[m[0]]);
 
             //display info
-            Form1.Form1Instance.setLabel2("pl per min="+Math.Round(ac_list[m[0]].pl_per_min,2).ToString()+", num trade="+ ac_list[m[0]].num_trade.ToString()+", cum pl="+ Math.Round(ac_list[m[0]].cum_pl).ToString());
+            Form1.Form1Instance.setLabel2("pl per min=" + Math.Round(ac_list[m[0]].pl_per_min, 2).ToString() + ", num trade=" + ac_list[m[0]].num_trade.ToString() + ", cum pl=" + Math.Round(ac_list[m[0]].cum_pl).ToString());
         }
 
         private void rouletteSelection()
@@ -219,10 +243,10 @@ namespace BTCTickSim
             }
 
             //roulette select
-            for(int i=0; i<eva.Count; i++)
+            for (int i = 0; i < eva.Count; i++)
             {
-                double roulette_v = ran.Next(0,Convert.ToInt32(Math.Truncate(sum)+1));
-                for(int j=1; j<board.Count; j++)
+                double roulette_v = ran.Next(0, Convert.ToInt32(Math.Truncate(sum) + 1));
+                for (int j = 1; j < board.Count; j++)
                 {
                     if (board[j - 1] < roulette_v && board[j] >= roulette_v)
                     {
@@ -242,7 +266,7 @@ namespace BTCTickSim
             new_gene_chromes = new List<Chrome>();
 
             var ran = RandomProvider.getRandom();
-            for(int i=0; i<chromes.Count; i++)
+            for (int i = 0; i < chromes.Count; i++)
             {
                 if (i != best_chrom_ind[best_chrom_ind.Count - 1])
                 {
@@ -262,11 +286,11 @@ namespace BTCTickSim
         {
             var ran = RandomProvider.getRandom();
             Chrome c = new Chrome();
-            for(int i=0; i<new_gene_chromes.Count; i++)
+            for (int i = 0; i < new_gene_chromes.Count; i++)
             {
-                if(i!=best_chrom_ind[best_chrom_ind.Count-1])
+                if (i != best_chrom_ind[best_chrom_ind.Count - 1])
                 {
-                    if(ran.NextDouble() > 0.1)
+                    if (ran.NextDouble() > 0.1)
                     {
                         new_gene_chromes[i].Gene_exit_time_sec = (ran.NextDouble() > 0.1) ? c.getExitTimeSecGene() : new_gene_chromes[i].Gene_exit_time_sec;
                         new_gene_chromes[i].Gene_kairi_term = (ran.NextDouble() > 0.1) ? c.getKairiTermGene() : new_gene_chromes[i].Gene_kairi_term;
@@ -289,12 +313,12 @@ namespace BTCTickSim
             string path = "./ga log.csv";
             using (StreamWriter sw = new StreamWriter(path, false, Encoding.Default))
             {
-                sw.WriteLine("From="+TickData.time[start_i].ToString() + " To="+TickData.time[end_i].ToString());
+                sw.WriteLine("From=" + TickData.time[start_i].ToString() + " To=" + TickData.time[end_i].ToString());
                 sw.WriteLine("Generation,best chrom ind,Eva,best cum pl, best pl per min,best stability,best num trade");
-                for(int i=0; i<best_eva_log.Count;i++)
+                for (int i = 0; i < best_eva_log.Count; i++)
                 {
-                    sw.WriteLine(i.ToString()+","+best_chrom_ind[i].ToString()+","+best_eva_log[i].ToString()+","+best_ac_log[i].cum_pl.ToString()
-                        +","+ best_ac_log[i].pl_per_min.ToString()+","+best_stability_log[i].ToString()+","+ best_ac_log[i].num_trade.ToString());
+                    sw.WriteLine(i.ToString() + "," + best_chrom_ind[i].ToString() + "," + best_eva_log[i].ToString() + "," + best_ac_log[i].cum_pl.ToString()
+                        + "," + best_ac_log[i].pl_per_min.ToString() + "," + best_stability_log[i].ToString() + "," + best_ac_log[i].num_trade.ToString());
                 }
             }
 
@@ -302,11 +326,11 @@ namespace BTCTickSim
             using (StreamWriter sw = new StreamWriter(path2, false, Encoding.Default))
             {
                 sw.WriteLine("From=" + TickData.time[start_i].ToString() + " To=" + TickData.time[end_i].ToString());
-                sw.WriteLine("From Index="+start_i.ToString()+" To Index="+end_i.ToString());
+                sw.WriteLine("From Index=" + start_i.ToString() + " To Index=" + end_i.ToString());
 
                 var c = chromes[best_chrom_ind[best_chrom_ind.Count - 1]];
                 sw.WriteLine("Exit Time Sec,Kairi Term,Entry Kairi,Rikaku");
-                sw.WriteLine(c.Gene_exit_time_sec.ToString()+","+c.Gene_kairi_term.ToString()+","+c.Gene_entry_kairi.ToString()+","+c.Gene_rikaku_percentage.ToString());
+                sw.WriteLine(c.Gene_exit_time_sec.ToString() + "," + c.Gene_kairi_term.ToString() + "," + c.Gene_entry_kairi.ToString() + "," + c.Gene_rikaku_percentage.ToString());
             }
         }
     }
