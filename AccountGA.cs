@@ -127,6 +127,7 @@ namespace BTCTickSim
             checkExecution(i);
             checkCancel(i);
             pl = calcPL(i);
+            total_pl_log.Add(i, cum_pl + pl);
             ave_pl = cum_pl / (double)num_trade;
             win_rate = win_rate / (double)num_trade;
             end_ind = i;

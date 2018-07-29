@@ -108,7 +108,7 @@ namespace BTCTickSim
 
 
         /*eva = performance + stability+ (only half late performance)
-         * eva = pl_per_min(1000) + stability(300) + num_trade(150) + later_p(150)
+         * eva = pl_per_min(1000) + stability(300) + num_trade(50) + later_p(150)
          * perfoamnce = pl_per_min -min      (take only plus value
          * stability = sum of diff from line from 0 to max_total_pl
          * 
@@ -173,7 +173,7 @@ namespace BTCTickSim
             //calc for num trade measure
             var num_trade = lists.Select(w => w.num_trade).ToList();
             double min_num_trade = num_trade.Min();
-            double num_upper_limit = 150;
+            double num_upper_limit = 50;
             double max_num_trade = num_trade.Max() - min_num_trade;
             List<double> num_trade_eva = new List<double>();
             for (int i = 0; i < lists.Count; i++)
@@ -209,12 +209,12 @@ namespace BTCTickSim
 
             for (int i = 0; i < lists.Count; i++)
             {
-                eva.Add(converted_pl_per_min[i] + stability[i] + num_trade_eva[i]);
+                eva.Add(converted_pl_per_min[i] + converted_stability[i] + num_trade_eva[i]);
             }
             //eva.Add( converted_pl_per_min[i] + stability[i] + num_trade_eva[i] + later_performance[i]);
 
 
-            //check for max eva index
+            //check for max eva inde
             double max = eva.Max();
             var m = eva.Select((p, i) => new { Content = p, Index = i })
     .Where(ano => ano.Content >= max)
