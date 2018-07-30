@@ -83,7 +83,7 @@ namespace BTCTickSim
             TickData.readTickData();
 
             SIMContinuosGA sim = new SIMContinuosGA();
-            sim.startContrarianSashine(TickData.time.Count - 5000000, TickData.time.Count - 1, 30, 10, true);
+            sim.startContrarianSashine(TickData.time.Count - 5000000, TickData.time.Count - 4500000, 30, 10, true);
         }
     }
 }

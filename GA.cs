@@ -69,7 +69,7 @@ namespace BTCTickSim
                 sw.Stop();
                 sec += sw.Elapsed.TotalSeconds;
                 estimated_remaining_time = new TimeSpan(0, 0, Convert.ToInt32(Convert.ToDouble(num_generation - Convert.ToDouble(i + 1)) * (sec / (Convert.ToDouble(i + 1)))));
-                Form1.Form1Instance.setLabel2("Estimated Remaining Time to Complete=" + estimated_remaining_time.ToString());
+               //Form1.Form1Instance.setLabel2("Estimated Remaining Time to Complete=" + estimated_remaining_time.ToString());
             }
             Form1.Form1Instance.setLabel2("GA calculation was completed, writing log..");
             if (writelog) writeLog();
@@ -123,96 +123,82 @@ namespace BTCTickSim
                 addAcList(i, sim.startContrarianSashine(from, to, chromes[i].Gene_exit_time_sec, chromes[i].Gene_kairi_term, chromes[i].Gene_entry_kairi, chromes[i].Gene_rikaku_percentage));
             });
 
-            List<AccountGA> lists = new List<AccountGA>();
+            //calc for performance eva
+            List<AccountGA> aclists = new List<AccountGA>();
             for (int i = 0; i < chromes.Count; i++)
-                lists.Add(ac_list[i]);
-            var pl_per_min = lists
-                .Select(x => x.pl_per_min);
+                aclists.Add(ac_list[i]);
 
-            //cacl performance measure
+            var pl_per_min = aclists.Select(x => x.pl_per_min).ToList();
             double min_pl_per_min = pl_per_min.Min();
             List<double> converted_pl_per_min = new List<double>();
             double max_pl = pl_per_min.Max() - min_pl_per_min;
             double pl_upper_limit = 1000;
-            foreach (var v in lists)
+            foreach (var v in aclists)
             {
                 converted_pl_per_min.Add((v.pl_per_min - min_pl_per_min) * (pl_upper_limit / max_pl));
             }
 
-
-            //calc stability measure
-            List<double> stability = new List<double>();
-            double max_total_pl = 0;
-            foreach (var v in lists)
-                max_total_pl = (v.total_pl_log[v.end_ind] > max_total_pl) ? v.total_pl_log[v.end_ind] : max_total_pl;
-            double stability_upper_limit = 300;
-            double max_pl_incli = max_total_pl / (lists[0].end_ind - lists[0].start_ind);
-            foreach (var v in lists)
-            {
-                double s = 0;
-                double num = 0;
-                for (int i = v.start_ind; i<=v.end_ind; i++)
-                {
-                    s += ((v.total_pl_log[i] - (max_total_pl * i) < 0) ? v.total_pl_log[i] - (max_total_pl * i) : 0);
-                    num++;
-                }
-                stability.Add(s);
-            }
-            var min_stability = stability.Min();
-            for (int i = 0; i < stability.Count; i++)
-                stability[i] = stability[i] - min_stability;
-
-            double max_s = stability.Max();
-            List<double> converted_stability = new List<double>();
-            for (int i = 0; i < stability.Count; i++)
-            {
-                converted_stability.Add(stability[i] * stability_upper_limit / max_s);
-            }
-
-
-            //calc for num trade measure
-            var num_trade = lists.Select(w => w.num_trade).ToList();
+            //calc for trade eva
+            var num_trade = aclists.Select(x => x.num_trade).ToList();
             double min_num_trade = num_trade.Min();
             double num_upper_limit = 50;
             double max_num_trade = num_trade.Max() - min_num_trade;
             List<double> num_trade_eva = new List<double>();
-            for (int i = 0; i < lists.Count; i++)
-                num_trade_eva.Add((lists[i].num_trade - min_num_trade) * (num_upper_limit / max_num_trade));
+            for (int i = 0; i < aclists.Count; i++)
+                num_trade_eva.Add((aclists[i].num_trade - min_num_trade) * (num_upper_limit / max_num_trade));
 
-            /*
-            //calc for later performance measure
-            List<double> later_performance = new List<double>();
-            for (int i = 0; i < lists.Count; i++)
+            //calc for stability eva
+            List<double> stability = new List<double>();
+            double max_total_pl = 0;
+            foreach (var v in aclists)
             {
-                int n = lists[i].total_pl_log.Count - 1;
-                int nn = Convert.ToInt32(Math.Truncate(n * 0.8));
-                double tmp_ini = 100;
-                var lp = (lists[i].total_pl_log[n] - lists[i].total_pl_log[nn]) / (lists[i].total_pl_log[nn]+ tmp_ini);
-                var fp = (lists[i].total_pl_log[nn] - lists[i].total_pl_log[0]) / (lists[i].total_pl_log[0]+tmp_ini);
-                later_performance.Add(lp/fp);
+                max_total_pl = (v.total_pl_log[v.end_ind] > max_total_pl) ? v.total_pl_log[v.end_ind] : max_total_pl;
             }
-            //var lp_max = later_performance.Max();
-            
-            var lp_min = later_performance.Min();
-            double lp_upper_limit = 150;
-            double max_lp = later_performance.Max() - lp_min;
-            for (int i = 0; i < later_performance.Count; i++)
-                later_performance[i] = (later_performance[i] - lp_min) * (lp_upper_limit / max_lp);
-                */
+            double max_pl_incli = max_total_pl / (aclists[0].end_ind - aclists[0].start_ind);
+            foreach (var v in aclists)
+            {
+                double s = 0;
+                double num = 0;
+                for (int i = v.start_ind; i <= v.end_ind; i++)
+                {
+                    s += ((v.total_pl_log[i] - (max_pl_incli * (num+1)) < 0) ? v.total_pl_log[i] - (max_pl_incli * (num + 1)) : 0);
+                    num++;
+                }
+                stability.Add(-1/s*(v.end_ind - v.start_ind));
+            }
+            var min_stability = stability.Min();
+            for (int i = 0; i < stability.Count; i++)
+                stability[i] = stability[i];
 
+
+            var tes = pl_per_min.Max();
             if (num_generation == 0)
             {
                 base_pl_eva = pl_per_min.Max();
-                base_stability_eva = stability.Max();
                 base_num_eva = num_trade.Max();
+                base_stability_eva = stability.Max();
             }
 
-            for (int i = 0; i < lists.Count; i++)
+            List<double> converted_pl_eva = new List<double>();
+            foreach (var v in pl_per_min)
+                converted_pl_eva.Add( (v>0) ?  v / base_pl_eva * 1000 : 0);
+
+            List<double> converted_num_trade_eava = new List<double>();
+            foreach (var v in num_trade)
+                converted_num_trade_eava.Add(v/base_num_eva * 10);
+
+            List<double> converted_stability_eva = new List<double>();
+            foreach (var v in stability)
+                converted_stability_eva.Add((v>0) ?  v/base_stability_eva * 150 : 0);
+
+            
+            for (int i = 0; i < aclists.Count; i++)
             {
-                eva.Add(converted_pl_per_min[i] + converted_stability[i] + num_trade_eva[i]);
+                eva.Add(converted_pl_per_min[i] + converted_stability_eva[i] + converted_num_trade_eava[i]);
+                //eva.Add(converted_pl_per_min[i] + converted_num_trade_eava[i]);
+                //eva.Add(converted_pl_eva[i]);
             }
-            //eva.Add( converted_pl_per_min[i] + stability[i] + num_trade_eva[i] + later_performance[i]);
-
+            
 
             //check for max eva inde
             double max = eva.Max();
@@ -221,11 +207,12 @@ namespace BTCTickSim
     .Select(ano => ano.Index).ToList();
             best_chrom_ind.Add(m[0]);
             best_eva_log.Add(eva[m[0]]);
-            best_ac_log.Add(lists[m[0]]);
+            best_ac_log.Add(aclists[m[0]]);
             best_stability_log.Add(stability[m[0]]);
 
             //display info
             Form1.Form1Instance.setLabel2("pl per min=" + Math.Round(ac_list[m[0]].pl_per_min, 2).ToString() + ", num trade=" + ac_list[m[0]].num_trade.ToString() + ", cum pl=" + Math.Round(ac_list[m[0]].cum_pl).ToString());
+            Form1.Form1Instance.setLabel3("");
         }
 
         private void rouletteSelection()

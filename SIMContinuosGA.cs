@@ -57,7 +57,7 @@ namespace BTCTickSim
                     chro = getOptStrategy(i - 1000000, i, num_chrom, num_generation);
                     sim = new SIM();
                     Form1.Form1Instance.addListBox2("recalc=" + num_recalc);
-                    ac_best = sim.startContrarianSashine(from - 1000000, from - 1, chro.Gene_exit_time_sec, chro.Gene_kairi_term, chro.Gene_entry_kairi, chro.Gene_rikaku_percentage, false);
+                    ac_best = sim.startContrarianSashine(i - 1000000, i, chro.Gene_exit_time_sec, chro.Gene_kairi_term, chro.Gene_entry_kairi, chro.Gene_rikaku_percentage, false);
                     ac.takeActionLog(i, "applied new strategy");
                 }
             }
@@ -68,15 +68,10 @@ namespace BTCTickSim
         private bool checkUpdateStrategy(int i, int last_str_ind, int from, Account ac, Account ac_best)
         {
             bool res = false;
-            if (i - last_str_ind -from> 15000)
+            if (i - last_str_ind -from> 15000 || ac.num_trade > 0)
             {
-                var expected_num_trade = Convert.ToDouble(ac_best.num_trade / (ac_best.end_ind - ac_best.start_ind)) * (i - last_str_ind);
-                if (Math.Truncate(expected_num_trade) > ac.num_trade)
-                {
-                    Form1.Form1Instance.setLabel3("i:"+i.ToString()+" recalc because of num trade"+",num trade="+ac.num_trade.ToString());
-                    res = true;
-                }
-                else if (ac_best.pl_per_min * 0.5 >= ac.pl_per_min)
+                //var expected_num_trade = Convert.ToDouble(ac_best.num_trade / (ac_best.end_ind - ac_best.start_ind)) * (i - last_str_ind);
+                if (ac_best.pl_per_min * 0.5 >= ac.pl_per_min)
                 {
                     Form1.Form1Instance.setLabel3("i:" + i.ToString() + " recalc because of pl per min" + ", pl_per_min=" + ac.pl_per_min.ToString());
                     res = true;
