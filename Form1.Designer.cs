@@ -132,7 +132,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1592, 928);
+            this.ClientSize = new System.Drawing.Size(1588, 992);
             this.Controls.Add(this.listBox2);
             this.Controls.Add(this.buttonContiGASim);
             this.Controls.Add(this.buttonMultiGASIM);

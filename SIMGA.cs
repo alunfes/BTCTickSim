@@ -14,7 +14,11 @@ namespace BTCTickSim
             for (int i = from; i < to; i++)
             {
                 var tdd = StrategyGA.contrarianSashine(ac, i, exit_time_sec, kairi_term, entry_kairi, rikaku);
-                if (tdd.price_tracing_order)
+                if(tdd.position == "Exit ALL")
+                {
+                    ac.exitAllOrder(i);
+                }
+                else if (tdd.price_tracing_order)
                 {
                     if (tdd.position == "Long" || tdd.position == "Short")
                     {

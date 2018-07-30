@@ -164,7 +164,7 @@ namespace BTCTickSim
             ave_pl = cum_pl / (double)num_trade;
             win_rate = win_rate / (double)num_trade;
             end_ind = i;
-            pl_per_min = total_pl_log[total_pl_log.Count-1] / Convert.ToDouble((TickData.time[end_ind] - TickData.time[start_ind]).TotalMinutes);
+            pl_per_min = total_pl_log.Values.ToList()[total_pl_log.Count-1] / Convert.ToDouble((TickData.time[end_ind] - TickData.time[start_ind]).TotalMinutes);
 
             if (writelog)
                 writeLog2();
@@ -189,7 +189,13 @@ namespace BTCTickSim
                 takeActionLog(i, "Entry Order for " + position + " @" + price.ToString() + " x " + lot.ToString());
             }
         }
-
+        
+        public void exitAllOrder(int i)
+        {
+            string position = (holding_position == "Long") ? "Short" : "Long";
+            takeActionLog(i, "Exit all");
+            entryPriceTracingOrder(i, position, ave_holding_lot);
+        }
 
         /********************************************************************
          * cancelall orders when entry to price tracing order

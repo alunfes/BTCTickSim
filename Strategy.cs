@@ -55,7 +55,11 @@ namespace BTCTickSim
                     dd = makeDDForEntryPriceTracingOrder(i, (ac.holding_position == "Long") ? "Short" : "Long", true, ac.ave_holding_lot);
                 }
             }
-            
+            else if (ac.holding_position != "None")
+            {
+                dd.position = "Exit_All";
+            }
+
             return dd;
         }
 

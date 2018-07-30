@@ -185,18 +185,16 @@ namespace BTCTickSim
 
             List<double> converted_num_trade_eava = new List<double>();
             foreach (var v in num_trade)
-                converted_num_trade_eava.Add(v/base_num_eva * 10);
+                converted_num_trade_eava.Add(v/base_num_eva * 150);
 
             List<double> converted_stability_eva = new List<double>();
             foreach (var v in stability)
-                converted_stability_eva.Add((v>0) ?  v/base_stability_eva * 150 : 0);
+                converted_stability_eva.Add((v>0) ?  v/base_stability_eva * 300 : 0);
 
             
             for (int i = 0; i < aclists.Count; i++)
             {
                 eva.Add(converted_pl_per_min[i] + converted_stability_eva[i] + converted_num_trade_eava[i]);
-                //eva.Add(converted_pl_per_min[i] + converted_num_trade_eava[i]);
-                //eva.Add(converted_pl_eva[i]);
             }
             
 
@@ -212,7 +210,6 @@ namespace BTCTickSim
 
             //display info
             Form1.Form1Instance.setLabel2("pl per min=" + Math.Round(ac_list[m[0]].pl_per_min, 2).ToString() + ", num trade=" + ac_list[m[0]].num_trade.ToString() + ", cum pl=" + Math.Round(ac_list[m[0]].cum_pl).ToString());
-            Form1.Form1Instance.setLabel3("");
         }
 
         private void rouletteSelection()

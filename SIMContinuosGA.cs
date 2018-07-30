@@ -8,20 +8,25 @@ namespace BTCTickSim
 {
     class SIMContinuosGA
     {
-        public Account startContrarianSashine(int from, int to, int num_chrom, int num_generation, bool write_result)
+        public Account startContrarianSashine(int from, int to, int num_chrom, int num_generation, int search_period, int pl_check_period, bool write_result)
         {
             Account ac = new Account();
-            int last_str_changed_ind = 0;
+            int last_str_changed_ind = from;
+            int last_str_num_trade = 0;
             Chrome chro = new Chrome();
-            chro = getOptStrategy(from - 1000000, from - 1, num_chrom, num_generation);
+            chro = getOptStrategy(from - search_period, from - 1, num_chrom, num_generation);
             SIM sim = new SIM();
-            Account ac_best = sim.startContrarianSashine(from - 1000000, from - 1, chro.Gene_exit_time_sec, chro.Gene_kairi_term, chro.Gene_entry_kairi, chro.Gene_rikaku_percentage, false);
+            Account ac_best = sim.startContrarianSashine(from - search_period, from - 1, chro.Gene_exit_time_sec, chro.Gene_kairi_term, chro.Gene_entry_kairi, chro.Gene_rikaku_percentage, false);
             int num_recalc = 0;
 
             for (int i = from; i < to; i++)
             {
                 var tdd = Strategy.contrarianSashine(ac, i, chro.Gene_exit_time_sec, chro.Gene_kairi_term, chro.Gene_entry_kairi, chro.Gene_rikaku_percentage);
-                if (tdd.price_tracing_order)
+                if (tdd.position == "Exit_All")
+                {
+                    ac.exitAllOrder(i);
+                }
+                else if (tdd.price_tracing_order)
                 {
                     if (tdd.position == "Long" || tdd.position == "Short")
                     {
@@ -47,33 +52,54 @@ namespace BTCTickSim
                         ac.entryOrder(i, tdd.position, tdd.price, tdd.lot);
                     }
                 }
-                ac.moveToNext(i);
-                Form1.Form1Instance.addListBox2(TickData.time[i]+":total pl="+ac.total_pl_log.Values.ToList()[ac.total_pl_log.Count-1]);
-
-                if (checkUpdateStrategy(i,last_str_changed_ind, from, ac, ac_best))
+                if (checkUpdateStrategy(i, last_str_changed_ind, from, pl_check_period, last_str_num_trade, ac, ac_best))
                 {
+                    ac.cancelAllOrders(i);
                     num_recalc++;
                     last_str_changed_ind = i;
-                    chro = getOptStrategy(i - 1000000, i, num_chrom, num_generation);
+                    last_str_num_trade = ac.num_trade;
+                    chro = getOptStrategy(i - search_period, i, num_chrom, num_generation);
                     sim = new SIM();
                     Form1.Form1Instance.addListBox2("recalc=" + num_recalc);
-                    ac_best = sim.startContrarianSashine(i - 1000000, i, chro.Gene_exit_time_sec, chro.Gene_kairi_term, chro.Gene_entry_kairi, chro.Gene_rikaku_percentage, false);
-                    ac.takeActionLog(i, "applied new strategy");
+                    ac_best = sim.startContrarianSashine(i - search_period, i, chro.Gene_exit_time_sec, chro.Gene_kairi_term, chro.Gene_entry_kairi, chro.Gene_rikaku_percentage, false);
+                    ac.takeActionLog(i, "applied new strategy:num trade=" + ac_best.num_trade.ToString() + " :pl per min=" + ac_best.pl_per_min.ToString() + " :win rate=" + ac_best.win_rate.ToString());
                 }
+                ac.moveToNext(i);
+                Form1.Form1Instance.addListBox2(TickData.time[i] + ":total pl=" + Math.Round(ac.total_pl_log.Values.ToList()[ac.total_pl_log.Count - 1], 2)+" :num trade="+ac.num_trade.ToString());
             }
             ac.lastDayOperation(to, write_result);
             return ac;
         }
 
-        private bool checkUpdateStrategy(int i, int last_str_ind, int from, Account ac, Account ac_best)
+        private bool checkUpdateStrategy(int i, int last_str_ind, int from, int pl_check_perid, int last_str_num_trade, Account ac, Account ac_best)
         {
             bool res = false;
-            if (i - last_str_ind -from> 15000 || ac.num_trade > 0)
+            double expected_num_trade = (Convert.ToDouble(ac_best.num_trade) / Convert.ToDouble(ac_best.end_ind - ac_best.start_ind)) * Convert.ToDouble(i - last_str_ind);
+
+            if ( (ac.num_trade - last_str_num_trade) >= 10 && (i - last_str_ind) < pl_check_perid)//alredy traded more than 15 times before pl_checl_period elapsed
             {
-                //var expected_num_trade = Convert.ToDouble(ac_best.num_trade / (ac_best.end_ind - ac_best.start_ind)) * (i - last_str_ind);
-                if (ac_best.pl_per_min * 0.5 >= ac.pl_per_min)
+                double current_pl_per_min = current_pl_per_min = (ac.total_pl_log[i - 1] - ac.total_pl_log[last_str_ind]) / (TickData.time[i] - TickData.time[last_str_ind]).TotalMinutes;
+                if (ac_best.pl_per_min * 0.5 >= current_pl_per_min)
                 {
-                    Form1.Form1Instance.setLabel3("i:" + i.ToString() + " recalc because of pl per min" + ", pl_per_min=" + ac.pl_per_min.ToString());
+                    Form1.Form1Instance.setLabel3("num:" + (i - ac.start_ind).ToString() + " recalc because of pl per min" + ", current pl_per_min=" + current_pl_per_min.ToString());
+                    res = true;
+                }
+            }
+            else if (expected_num_trade >= 3 && (i - last_str_ind) >= pl_check_perid)//pl_check_period elapsed and expected num trade is more than 5
+            {
+                double current_pl_per_min = current_pl_per_min = (ac.total_pl_log[i - 1] - ac.total_pl_log[i - pl_check_perid]) / (TickData.time[i] - TickData.time[i - pl_check_perid]).TotalMinutes;
+                if (ac_best.pl_per_min * 0.5 >= current_pl_per_min)
+                {
+                    Form1.Form1Instance.setLabel3("num:" + (i - ac.start_ind).ToString() + " recalc because of pl per min" + ", current pl_per_min=" + current_pl_per_min.ToString());
+                    res = true;
+                }
+            }
+            else if ((ac.num_trade - last_str_num_trade) >= 5 && (i - last_str_ind) >= pl_check_perid)//pl_check_period elapsed and actual num trade is more than 10
+            {
+                double current_pl_per_min = current_pl_per_min = (ac.total_pl_log[i - 1] - ac.total_pl_log[i - pl_check_perid]) / (TickData.time[i] - TickData.time[i - pl_check_perid]).TotalMinutes;
+                if (ac_best.pl_per_min * 0.5 >= current_pl_per_min)
+                {
+                    Form1.Form1Instance.setLabel3("num:" + (i - ac.start_ind).ToString() + " recalc because of pl per min" + ", current pl_per_min=" + current_pl_per_min.ToString());
                     res = true;
                 }
             }
