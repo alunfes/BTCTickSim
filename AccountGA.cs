@@ -19,6 +19,10 @@ namespace BTCTickSim
         public double win_rate;
         public double ave_pl;
         public double pl_per_min;
+        public double pl_vola;
+        public double profit_factor;
+        public List<double> quarter_performance;
+        public double num_trade_per_hour;
 
         public List<double> unexe_price;
         public List<double> unexe_lot;
@@ -57,8 +61,12 @@ namespace BTCTickSim
             win_rate = 0;
             ave_pl = 0;
             pl_per_min = 0;
+            pl_vola = 0;
+            profit_factor = 0;
+            quarter_performance = new List<double>();
+            num_trade_per_hour = 0;
 
-            //cum_pl_log = new List<double>();
+            cum_pl_log = new List<double>();
             total_pl_log = new Dictionary<int, double>();
 
             initializeUnexeData();
@@ -132,12 +140,82 @@ namespace BTCTickSim
             win_rate = win_rate / (double)num_trade;
             end_ind = i;
             pl_per_min = total_pl_log.Values.ToList()[total_pl_log.Count-1] / Convert.ToDouble((TickData.time[end_ind] - TickData.time[start_ind]).TotalMinutes);
+            num_trade_per_hour = Convert.ToDouble(num_trade) / (TickData.time[end_ind] - TickData.time[start_ind]).TotalHours;
+
+            profit_factor = calcProfitFactor();
+            calcQuarterPerformance(4);
+            pl_vola = calcPLVolatility();
         }
 
         public double calcPL(int i)
         {
             return (holding_position == "Long") ? (TickData.price[i] - ave_holding_price) * ave_holding_lot :
                 (ave_holding_price - TickData.price[i]) * ave_holding_lot;
+        }
+
+        private double calcProfitFactor()
+        {
+            if (num_trade > 0)
+            {
+                var list = cum_pl_log;
+                List<double> pl = new List<double>();
+                for (int i = 1; i < list.Count; i++)
+                {
+                    if (list[i] - list[i - 1] != 0)
+                        pl.Add(list[i] - list[i - 1]);
+                }
+
+                double plus = 0;
+                double minus = 0;
+                foreach (var v in pl)
+                {
+                    if (v > 0)
+                        plus += v;
+                    else
+                        minus += v;
+                }
+                return (minus != 0) ? plus / (-minus) : 0;
+            }
+            else
+                return 0;
+        }
+
+        private double calcPLVolatility()
+        {
+            if (num_trade > 0)
+            {
+                var list = cum_pl_log;
+                List<double> pl = new List<double>();
+                for (int i = 1; i < list.Count; i++)
+                {
+                    if (list[i] - list[i - 1] != 0)
+                        pl.Add(list[i] - list[i - 1]);
+                }
+
+                double ave = pl.Average();
+                double sum_diff = 0;
+                foreach (var v in list)
+                    sum_diff += Math.Pow(ave - v, 2);
+                return Math.Pow(sum_diff / (double)num_trade, 0.5);
+            }
+            else
+                return 0;
+        }
+
+        private void calcQuarterPerformance(int numq)
+        {
+            var list = total_pl_log.Values.ToList();
+            double num_tick_q = (double)list.Count / (double)numq;
+
+            int start = 0;
+            int end = (int)Math.Truncate(num_tick_q);
+            for (int i = 0; i < numq - 1; i++)
+            {
+                quarter_performance.Add(list[end] - list[start]);
+                start = end;
+                end += (int)Math.Truncate(num_tick_q);
+            }
+            quarter_performance.Add(list[list.Count - 1] - list[list.Count - 1 - (int)Math.Truncate(num_tick_q)]);
         }
 
         public void entryOrder(int i, string position, double price, double lot)
@@ -325,6 +403,7 @@ namespace BTCTickSim
                     }
                     else if (unexe_lot[unexe_ind] == ave_holding_lot)
                     {
+                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot);
                         initializeHoldingData();
                     }
                 }
@@ -406,11 +485,15 @@ namespace BTCTickSim
                     pl = (ave_holding_price - price) * lot;
                 }
             }
+
+            if (pl == 0)
+                pl = 0;
+
             num_trade++;
             if (pl > 0)
                 win_rate++;
             cum_pl += pl;
-            //cum_pl_log.Add(cum_pl);
+            cum_pl_log.Add(cum_pl);
         }
     }
 }

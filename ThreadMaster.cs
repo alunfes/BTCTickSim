@@ -75,7 +75,7 @@ namespace BTCTickSim
             SIM s = new SIM();
             Chrome chro = new Chrome();
             chro.readBestChromFile();
-            s.startContrarianSashine(TickData.price.Count - 10000000, TickData.price.Count - 8000000, chro.Gene_exit_time_sec,chro.Gene_kairi_term, chro.Gene_entry_kairi,chro.Gene_rikaku_percentage, true);
+            s.startContrarianSashine(TickData.price.Count - 5000000, TickData.price.Count - 4000000, chro.Gene_exit_time_sec,chro.Gene_kairi_term, chro.Gene_entry_kairi,chro.Gene_rikaku_percentage, true);
         }
 
         private void doContiGASim()
