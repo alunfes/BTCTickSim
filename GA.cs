@@ -170,6 +170,19 @@ namespace BTCTickSim
             for (int i = 0; i < stability.Count; i++)
                 stability[i] = stability[i];
 
+            List<double> pl_vola_eva = new List<double>();
+            foreach (var v in aclists)
+            {
+                if (v.pl_vola > 1)
+                {
+                    pl_vola_eva.Add(500 / v.pl_vola);
+                    if (pl_vola_eva[pl_vola_eva.Count - 1] > 99999)
+                        Debug.WriteLine(pl_vola_eva[pl_vola_eva.Count - 1]);
+                }
+                else
+                    pl_vola_eva.Add(0);
+            }
+
 
             var tes = pl_per_min.Max();
             if (num_generation == 0)
@@ -181,11 +194,11 @@ namespace BTCTickSim
 
             List<double> converted_pl_eva = new List<double>();
             foreach (var v in pl_per_min)
-                converted_pl_eva.Add( (v>0) ?  v / base_pl_eva * 1000 : 0);
+                converted_pl_eva.Add( (v>0) ?  v / base_pl_eva * 5000 : 0);
 
             List<double> converted_num_trade_eava = new List<double>();
             foreach (var v in num_trade)
-                converted_num_trade_eava.Add(v/base_num_eva * 150);
+                converted_num_trade_eava.Add(v/base_num_eva * 450);
 
             List<double> converted_stability_eva = new List<double>();
             foreach (var v in stability)
@@ -194,7 +207,7 @@ namespace BTCTickSim
             
             for (int i = 0; i < aclists.Count; i++)
             {
-                eva.Add(converted_pl_per_min[i] + converted_stability_eva[i] + converted_num_trade_eava[i]);
+                eva.Add(converted_pl_per_min[i] + converted_stability_eva[i] + converted_num_trade_eava[i]+pl_vola_eva[i]);
             }
             
 

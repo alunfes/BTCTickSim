@@ -194,7 +194,7 @@ namespace BTCTickSim
 
                 double ave = pl.Average();
                 double sum_diff = 0;
-                foreach (var v in list)
+                foreach (var v in pl)
                     sum_diff += Math.Pow(ave - v, 2);
                 return Math.Pow(sum_diff / (double)num_trade, 0.5);
             }

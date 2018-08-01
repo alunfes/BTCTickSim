@@ -37,6 +37,7 @@
             this.buttonMultiGASIM = new System.Windows.Forms.Button();
             this.buttonContiGASim = new System.Windows.Forms.Button();
             this.listBox2 = new System.Windows.Forms.ListBox();
+            this.buttonGA = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // buttonStart
@@ -60,11 +61,11 @@
             // 
             // buttonTest
             // 
-            this.buttonTest.Location = new System.Drawing.Point(48, 311);
+            this.buttonTest.Location = new System.Drawing.Point(303, 897);
             this.buttonTest.Name = "buttonTest";
             this.buttonTest.Size = new System.Drawing.Size(194, 83);
             this.buttonTest.TabIndex = 2;
-            this.buttonTest.Text = "GA";
+            this.buttonTest.Text = "Test";
             this.buttonTest.UseVisualStyleBackColor = true;
             this.buttonTest.Click += new System.EventHandler(this.buttonTest_Click);
             // 
@@ -128,11 +129,22 @@
             this.listBox2.Size = new System.Drawing.Size(1180, 340);
             this.listBox2.TabIndex = 8;
             // 
+            // buttonGA
+            // 
+            this.buttonGA.Location = new System.Drawing.Point(48, 312);
+            this.buttonGA.Name = "buttonGA";
+            this.buttonGA.Size = new System.Drawing.Size(194, 83);
+            this.buttonGA.TabIndex = 9;
+            this.buttonGA.Text = "GA";
+            this.buttonGA.UseVisualStyleBackColor = true;
+            this.buttonGA.Click += new System.EventHandler(this.buttonGA_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1588, 992);
+            this.Controls.Add(this.buttonGA);
             this.Controls.Add(this.listBox2);
             this.Controls.Add(this.buttonContiGASim);
             this.Controls.Add(this.buttonMultiGASIM);
@@ -162,6 +174,7 @@
         private System.Windows.Forms.Button buttonMultiGASIM;
         private System.Windows.Forms.Button buttonContiGASim;
         private System.Windows.Forms.ListBox listBox2;
+        private System.Windows.Forms.Button buttonGA;
     }
 }
 

@@ -36,10 +36,15 @@ namespace BTCTickSim
             tm.start();
         }
 
-        private void buttonTest_Click(object sender, EventArgs e)
+        private void buttonGA_Click(object sender, EventArgs e)
         {
             ThreadMaster tm = new ThreadMaster();
             tm.startGA();
+        }
+
+        private void buttonTest_Click(object sender, EventArgs e)
+        {
+            
         }
 
         private void buttonMultiGASIM_Click(object sender, EventArgs e)
@@ -122,8 +127,9 @@ namespace BTCTickSim
             this.listBox2.TopIndex = this.listBox2.Items.Count - 1;
         }
 
+
         #endregion
 
-
+        
     }
 }
