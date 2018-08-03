@@ -21,6 +21,7 @@ namespace BTCTickSim
         public double pl_per_min;
         public double pl_vola;
         public double profit_factor;
+        public double sharp_ratio;
         public List<double> quarter_performance;
         public double num_trade_per_hour;
 
@@ -65,6 +66,7 @@ namespace BTCTickSim
             profit_factor = 0;
             quarter_performance = new List<double>();
             num_trade_per_hour = 0;
+            sharp_ratio = 0;
 
             cum_pl_log = new List<double>();
             total_pl_log = new Dictionary<int, double>();
@@ -141,6 +143,7 @@ namespace BTCTickSim
             end_ind = i;
             pl_per_min = total_pl_log.Values.ToList()[total_pl_log.Count-1] / Convert.ToDouble((TickData.time[end_ind] - TickData.time[start_ind]).TotalMinutes);
             num_trade_per_hour = Convert.ToDouble(num_trade) / (TickData.time[end_ind] - TickData.time[start_ind]).TotalHours;
+            sharp_ratio = (pl_vola > 1) ? total_pl_log[total_pl_log.Count - 1] / pl_vola : 0;
 
             profit_factor = calcProfitFactor();
             calcQuarterPerformance(4);

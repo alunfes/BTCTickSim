@@ -65,7 +65,7 @@ namespace BTCTickSim
         {
             TickData.readTickData();
             GA ga = new GA();
-            ga.startGA(30, 20, TickData.time.Count - 6000000, TickData.time.Count - 5000000, true);
+            ga.startGA(20, 30, TickData.time.Count - 6000000, TickData.time.Count - 4000000, true);
         }
 
         private void doSIm()
@@ -76,7 +76,7 @@ namespace BTCTickSim
             SIM s = new SIM();
             Chrome chro = new Chrome();
             chro.readBestChromFile();
-            s.startContrarianSashine(TickData.price.Count - 5000000, TickData.price.Count - 4000000, chro.Gene_exit_time_sec,chro.Gene_kairi_term, chro.Gene_entry_kairi,chro.Gene_rikaku_percentage, true);
+            s.startContrarianSashine(TickData.price.Count - 4000000, TickData.price.Count - 3000000, chro.Gene_exit_time_sec,chro.Gene_kairi_term, chro.Gene_entry_kairi,chro.Gene_rikaku_percentage, true);
         }
 
         private void doContiGASim()

@@ -20,7 +20,6 @@ namespace BTCTickSim
         public List<double> best_eva_log;
         public List<int> best_chrom_ind;
         public List<AccountGA> best_ac_log;
-        public List<double> best_stability_log;
 
         private int start_i;
         private int end_i;
@@ -32,6 +31,17 @@ namespace BTCTickSim
         public double base_pl_eva;
         public double base_stability_eva;
         public double base_num_eva;
+
+        public double max_pl_per_min;
+        public double min_pl_per_min;
+        public double base_pl_per_min;
+        public double max_num_trade;
+        public double min_num_trade;
+        public double base_num_trade;
+        public double max_profit_factor;
+        public double min_profit_factor;
+        public double base_profit_factor;
+
 
         public void addAcList(int i, AccountGA ac)
         {
@@ -57,7 +67,7 @@ namespace BTCTickSim
             {
                 sw.Start();
 
-                evaluateChrom(from, to, i);
+                evaluateChrom(from, to, i, 1000, 250, 10);
                 rouletteSelection();
                 crossOver();
                 mutation();
@@ -69,7 +79,7 @@ namespace BTCTickSim
                 sw.Stop();
                 sec += sw.Elapsed.TotalSeconds;
                 estimated_remaining_time = new TimeSpan(0, 0, Convert.ToInt32(Convert.ToDouble(num_generation - Convert.ToDouble(i + 1)) * (sec / (Convert.ToDouble(i + 1)))));
-               //Form1.Form1Instance.setLabel2("Estimated Remaining Time to Complete=" + estimated_remaining_time.ToString());
+                //Form1.Form1Instance.setLabel2("Estimated Remaining Time to Complete=" + estimated_remaining_time.ToString());
             }
             Form1.Form1Instance.setLabel2("GA calculation was completed, writing log..");
             if (writelog) writeLog();
@@ -89,12 +99,22 @@ namespace BTCTickSim
             best_ac_log = new List<AccountGA>();
             best_eva_log = new List<double>();
             estimated_remaining_time = new TimeSpan();
-            best_stability_log = new List<double>();
 
             base_total_eva = 0;
             base_pl_eva = 0;
             base_stability_eva = 0;
             base_num_eva = 0;
+
+            max_pl_per_min = 0;
+            min_pl_per_min = 0;
+            base_pl_per_min = 0;
+            max_num_trade = 0;
+            min_num_trade = 0;
+            base_num_trade = 0;
+            max_profit_factor = 0;
+            min_profit_factor = 0;
+            base_profit_factor = 0;
+
         }
 
         private void generateRandomeChromes(int num)
@@ -113,7 +133,7 @@ namespace BTCTickSim
          * stability = sum of diff from line from 0 to max_total_pl
          * 
          */
-        private void evaluateChrom(int from, int to, int num_generation)
+        private void evaluateChrom(int from, int to, int num_generation, double pl_per_min_importance, double num_trade_importance, double profit_factor_importance)
         {
             //do sim for all chromes
             eva = new List<double>();
@@ -129,88 +149,33 @@ namespace BTCTickSim
                 aclists.Add(ac_list[i]);
 
             var pl_per_min = aclists.Select(x => x.pl_per_min).ToList();
-            double min_pl_per_min = pl_per_min.Min();
-            List<double> converted_pl_per_min = new List<double>();
-            double max_pl = pl_per_min.Max() - min_pl_per_min;
-            double pl_upper_limit = 1000;
-            foreach (var v in aclists)
-            {
-                converted_pl_per_min.Add((v.pl_per_min - min_pl_per_min) * (pl_upper_limit / max_pl));
-            }
-
-            //calc for trade eva
             var num_trade = aclists.Select(x => x.num_trade).ToList();
-            double min_num_trade = num_trade.Min();
-            double num_upper_limit = 50;
-            double max_num_trade = num_trade.Max() - min_num_trade;
-            List<double> num_trade_eva = new List<double>();
-            for (int i = 0; i < aclists.Count; i++)
-                num_trade_eva.Add((aclists[i].num_trade - min_num_trade) * (num_upper_limit / max_num_trade));
+            var profit_factor = aclists.Select(x => x.profit_factor).ToList();
 
-            //calc for stability eva
-            List<double> stability = new List<double>();
-            double max_total_pl = 0;
-            foreach (var v in aclists)
-            {
-                max_total_pl = (v.total_pl_log[v.end_ind] > max_total_pl) ? v.total_pl_log[v.end_ind] : max_total_pl;
-            }
-            double max_pl_incli = max_total_pl / (aclists[0].end_ind - aclists[0].start_ind);
-            foreach (var v in aclists)
-            {
-                double s = 0;
-                double num = 0;
-                for (int i = v.start_ind; i <= v.end_ind; i++)
-                {
-                    s += ((v.total_pl_log[i] - (max_pl_incli * (num+1)) < 0) ? v.total_pl_log[i] - (max_pl_incli * (num + 1)) : 0);
-                    num++;
-                }
-                stability.Add(-1/s*(v.end_ind - v.start_ind));
-            }
-            var min_stability = stability.Min();
-            for (int i = 0; i < stability.Count; i++)
-                stability[i] = stability[i];
-
-            List<double> pl_vola_eva = new List<double>();
-            foreach (var v in aclists)
-            {
-                if (v.pl_vola > 1)
-                {
-                    pl_vola_eva.Add(500 / v.pl_vola);
-                    if (pl_vola_eva[pl_vola_eva.Count - 1] > 99999)
-                        Debug.WriteLine(pl_vola_eva[pl_vola_eva.Count - 1]);
-                }
-                else
-                    pl_vola_eva.Add(0);
-            }
-
-
-            var tes = pl_per_min.Max();
             if (num_generation == 0)
             {
-                base_pl_eva = pl_per_min.Max();
-                base_num_eva = num_trade.Max();
-                base_stability_eva = stability.Max();
+                min_pl_per_min = pl_per_min.Min();
+                max_pl_per_min = (pl_per_min.Max() - min_pl_per_min) * 10000;
+                base_pl_per_min = (pl_per_min_importance * max_pl_per_min) / (pl_per_min.Max() - min_pl_per_min);
+                
+                min_num_trade = num_trade.Min();
+                max_num_trade = (num_trade.Max() - min_num_trade) * 10000;
+                base_num_trade = (num_trade_importance * max_num_trade) / (num_trade.Max() - num_trade.Min());
+
+                min_profit_factor = profit_factor.Min();
+                max_profit_factor = (profit_factor.Max() - min_profit_factor) * 10000;
+                base_profit_factor = (profit_factor_importance * max_profit_factor) / (profit_factor.Max() - profit_factor.Min());
             }
 
-            List<double> converted_pl_eva = new List<double>();
-            foreach (var v in pl_per_min)
-                converted_pl_eva.Add( (v>0) ?  v / base_pl_eva * 5000 : 0);
-
-            List<double> converted_num_trade_eava = new List<double>();
-            foreach (var v in num_trade)
-                converted_num_trade_eava.Add(v/base_num_eva * 450);
-
-            List<double> converted_stability_eva = new List<double>();
-            foreach (var v in stability)
-                converted_stability_eva.Add((v>0) ?  v/base_stability_eva * 300 : 0);
-
-            
             for (int i = 0; i < aclists.Count; i++)
             {
-                eva.Add(converted_pl_per_min[i] + converted_stability_eva[i] + converted_num_trade_eava[i]+pl_vola_eva[i]);
+                double eva_pl_per_min = (pl_per_min[i] >= min_pl_per_min) ? base_pl_per_min * (pl_per_min[i] - min_pl_per_min) / max_pl_per_min : min_pl_per_min;
+                double eva_num_trade = (num_trade[i] >= min_num_trade) ?  base_num_trade * (num_trade[i] - min_num_trade) / max_num_trade : min_num_trade;
+                double eva_profit_factor = (profit_factor[i] >= min_profit_factor) ? base_profit_factor * (profit_factor[i] - min_profit_factor) / max_profit_factor : min_profit_factor;
+
+                eva.Add(eva_pl_per_min + eva_num_trade + eva_profit_factor );
             }
             
-
             //check for max eva inde
             double max = eva.Max();
             var m = eva.Select((p, i) => new { Content = p, Index = i })
@@ -219,10 +184,9 @@ namespace BTCTickSim
             best_chrom_ind.Add(m[0]);
             best_eva_log.Add(eva[m[0]]);
             best_ac_log.Add(aclists[m[0]]);
-            best_stability_log.Add(stability[m[0]]);
 
             //display info
-            Form1.Form1Instance.setLabel2("pl per min=" + Math.Round(ac_list[m[0]].pl_per_min, 2).ToString() + ", num trade=" + ac_list[m[0]].num_trade.ToString() + ", cum pl=" + Math.Round(ac_list[m[0]].cum_pl).ToString());
+            Form1.Form1Instance.setLabel2("pl per min=" + Math.Round(ac_list[m[0]].pl_per_min, 2).ToString() + ", num trade=" + ac_list[m[0]].num_trade.ToString() + ", cum pl=" + Math.Round(ac_list[m[0]].cum_pl).ToString() + ", profit factor=" +Math.Round(ac_list[m[0]].profit_factor,2).ToString());
         }
 
         private void rouletteSelection()
@@ -311,11 +275,11 @@ namespace BTCTickSim
             using (StreamWriter sw = new StreamWriter(path, false, Encoding.Default))
             {
                 sw.WriteLine("From=" + TickData.time[start_i].ToString() + " To=" + TickData.time[end_i].ToString());
-                sw.WriteLine("Generation,best chrom ind,Eva,best cum pl, best pl per min,best stability,best num trade");
+                sw.WriteLine("Generation,best chrom ind,Eva,best cum pl, best pl per min,best num trade");
                 for (int i = 0; i < best_eva_log.Count; i++)
                 {
                     sw.WriteLine(i.ToString() + "," + best_chrom_ind[i].ToString() + "," + best_eva_log[i].ToString() + "," + best_ac_log[i].cum_pl.ToString()
-                        + "," + best_ac_log[i].pl_per_min.ToString() + "," + best_stability_log[i].ToString() + "," + best_ac_log[i].num_trade.ToString());
+                        + "," + best_ac_log[i].pl_per_min.ToString()  + "," + best_ac_log[i].num_trade.ToString());
                 }
             }
 

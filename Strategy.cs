@@ -57,7 +57,7 @@ namespace BTCTickSim
             }
             else if (ac.holding_position != "None")
             {
-                dd.position = "Exit_All";
+                //dd.position = "Exit_All";
             }
 
             return dd;
