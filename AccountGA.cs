@@ -185,7 +185,7 @@ namespace BTCTickSim
 
         private double calcPLVolatility()
         {
-            if (num_trade > 0)
+            if (num_trade > 1)
             {
                 var list = cum_pl_log;
                 List<double> pl = new List<double>();
@@ -195,14 +195,19 @@ namespace BTCTickSim
                         pl.Add(list[i] - list[i - 1]);
                 }
 
-                double ave = pl.Average();
-                double sum_diff = 0;
-                foreach (var v in pl)
-                    sum_diff += Math.Pow(ave - v, 2);
-                return Math.Pow(sum_diff / (double)num_trade, 0.5);
+                if (pl.Count > 2)
+                {
+                    double ave = pl.Average();
+                    double sum_diff = 0;
+                    foreach (var v in pl)
+                        sum_diff += Math.Pow(ave - v, 2);
+                    return Math.Pow(sum_diff / (double)num_trade, 0.5);
+                }
+                else
+                    return 999;
             }
             else
-                return 0;
+                return 999;
         }
 
         private void calcQuarterPerformance(int numq)

@@ -42,34 +42,36 @@ namespace BTCTickSim
 
         public static void readTickData()
         {
-            
-            TickData.initialize();
-
-            using (System.IO.StreamReader sr = new System.IO.StreamReader("tick.csv", Encoding.UTF8, false))
+            if (TickData.price == null)
             {
-                try
-                {
-                    Form1.Form1Instance.setLabel("reading data");
-                    int num = 0;
-                    foreach (var line in File.ReadLines("tick.csv"))
-                    {
-                        var e = line.Split(',');
-                        TickData.time.Add(FromUnixTime(Convert.ToInt64(e[0])));
-                        TickData.price.Add(Convert.ToDouble(e[1]));
-                        TickData.volume.Add(Convert.ToDouble(e[2]));
-                        num++;
-                    }
-                    Form1.Form1Instance.setLabel("Tick Data: from-" + time[0].ToString() + ", to-"+time[time.Count-1].ToString()+", Num="+num.ToString());
-                }
-                catch (Exception e)
-                {
-                    System.Windows.Forms.MessageBox.Show(e.ToString());
-                }
-            }
+                TickData.initialize();
 
-            calcAveVolAll();
-            calcSpeedAll();
-            calcVolaAll();
+                using (System.IO.StreamReader sr = new System.IO.StreamReader("tick.csv", Encoding.UTF8, false))
+                {
+                    try
+                    {
+                        Form1.Form1Instance.setLabel("reading data");
+                        int num = 0;
+                        foreach (var line in File.ReadLines("tick.csv"))
+                        {
+                            var e = line.Split(',');
+                            TickData.time.Add(FromUnixTime(Convert.ToInt64(e[0])));
+                            TickData.price.Add(Convert.ToDouble(e[1]));
+                            TickData.volume.Add(Convert.ToDouble(e[2]));
+                            num++;
+                        }
+                        Form1.Form1Instance.setLabel("Tick Data: from-" + time[0].ToString() + ", to-" + time[time.Count - 1].ToString() + ", Num=" + num.ToString());
+                    }
+                    catch (Exception e)
+                    {
+                        System.Windows.Forms.MessageBox.Show(e.ToString());
+                    }
+                }
+
+                calcAveVolAll();
+                calcSpeedAll();
+                calcVolaAll();
+            }
         }
 
         private static DateTime FromUnixTime(long unixTime)
@@ -79,9 +81,9 @@ namespace BTCTickSim
 
         private static void calcVolaAll()
         {
-            vola_2500= calcVola(2500);
+            //vola_2500= calcVola(2500);
             //vola_1000 = calcVola(1000);
-            //vola_500 = calcVola(500);
+            vola_500 = calcVola(500);
         }
         private static List<double> calcVola(int term)
         {

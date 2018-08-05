@@ -20,6 +20,9 @@ namespace BTCTickSim
         public double Gene_entry_kairi { get; set; }
         public double Gene_rikaku_percentage { get; set; }
 
+        public int start_ind;
+        public int end_ind;
+
         public Chrome()
         {
             generateInitialChrome();
@@ -59,10 +62,14 @@ namespace BTCTickSim
         {
             using (StreamReader sr = new StreamReader("./best chrome gene.csv", Encoding.Default))
             {
-                for (int i = 0; i < 3; i++)
-                    sr.ReadLine();
+                sr.ReadLine();
                 string line = sr.ReadLine();
-                var ele = line.Split(',');
+                start_ind = Convert.ToInt32(line.Split('=')[1].Split(' ')[0]);
+                end_ind = Convert.ToInt32(line.Split('=')[2]);
+                sr.ReadLine();
+                
+
+                var ele = sr.ReadLine().Split(',');
                 Gene_exit_time_sec = Convert.ToInt32( ele[0]);
                 Gene_kairi_term = Convert.ToInt32(ele[1]);
                 Gene_entry_kairi = Convert.ToDouble(ele[2]);

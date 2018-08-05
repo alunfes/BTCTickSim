@@ -18,3 +18,5 @@ F:\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.csproj.
 F:\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.exe
 F:\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.pdb
 F:\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.csprojAssemblyReference.cache
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\bin\Debug\System.ValueTuple.dll
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\bin\Debug\System.ValueTuple.xml

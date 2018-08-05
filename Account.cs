@@ -24,7 +24,7 @@ namespace BTCTickSim
         public double profit_factor;
         public List<double> quarter_performance;
         public double num_trade_per_hour;
-        public double sharp_ratio;
+        public double sharp_ratio; 
 
         public List<double> unexe_price;
         public List<double> unexe_lot;
@@ -221,7 +221,7 @@ namespace BTCTickSim
 
         private double calcPLVolatility()
         {
-            if (num_trade > 0)
+            if (num_trade > 1)
             {
                 var list = cum_pl_log.Values.ToList();
                 List<double> pl = new List<double>();
@@ -231,14 +231,19 @@ namespace BTCTickSim
                         pl.Add(list[i] - list[i - 1]);
                 }
 
-                double ave = pl.Average();
-                double sum_diff = 0;
-                foreach (var v in pl)
-                    sum_diff += Math.Pow(ave - v, 2);
-                return Math.Pow(sum_diff / (double)num_trade, 0.5);
+                if (pl.Count > 1)
+                {
+                    double ave = pl.Average();
+                    double sum_diff = 0;
+                    foreach (var v in pl)
+                        sum_diff += Math.Pow(ave - v, 2);
+                    return Math.Pow(sum_diff / (double)num_trade, 0.5);
+                }
+                else
+                    return 999;
             }
             else
-                return 0;
+                return 999;
         }
 
         private void calcQuarterPerformance(int numq)

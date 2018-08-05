@@ -41,7 +41,9 @@ namespace BTCTickSim
         public double max_profit_factor;
         public double min_profit_factor;
         public double base_profit_factor;
-
+        public double max_pl_vola;
+        public double min_pl_vola;
+        public double base_pl_vola;
 
         public void addAcList(int i, AccountGA ac)
         {
@@ -67,14 +69,15 @@ namespace BTCTickSim
             {
                 sw.Start();
 
-                evaluateChrom(from, to, i, 1000, 250, 10);
+                evaluateChrom(from, to, i, 1500, 250, 25, 25);
                 rouletteSelection();
                 crossOver();
                 mutation();
                 goToNextGeneration();
 
                 Form1.Form1Instance.addListBox("#" + i.ToString() + ": eva=" + Math.Round(best_eva_log[best_eva_log.Count - 1], 2).ToString() + ", pl per min=" + Math.Round(best_ac_log[best_ac_log.Count - 1].pl_per_min, 2).ToString()
-                    + ", num trade=" + best_ac_log[best_ac_log.Count - 1].num_trade.ToString() + ", Win Rate=" + Math.Round(best_ac_log[best_ac_log.Count - 1].win_rate, 2).ToString());
+                    + ", num trade per hour=" + best_ac_log[best_ac_log.Count - 1].num_trade_per_hour.ToString() + ", Win Rate=" + Math.Round(best_ac_log[best_ac_log.Count - 1].win_rate, 2).ToString() + ", profit factor=" + Math.Round(best_ac_log[best_ac_log.Count - 1].profit_factor, 2).ToString()
+                    + ", PL Vola=" + Math.Round(best_ac_log[best_ac_log.Count - 1].pl_vola, 2).ToString());
 
                 sw.Stop();
                 sec += sw.Elapsed.TotalSeconds;
@@ -114,6 +117,9 @@ namespace BTCTickSim
             max_profit_factor = 0;
             min_profit_factor = 0;
             base_profit_factor = 0;
+            max_pl_vola = 0;
+            min_pl_vola = 0;
+            base_pl_vola = 0;
 
         }
 
@@ -133,7 +139,7 @@ namespace BTCTickSim
          * stability = sum of diff from line from 0 to max_total_pl
          * 
          */
-        private void evaluateChrom(int from, int to, int num_generation, double pl_per_min_importance, double num_trade_importance, double profit_factor_importance)
+        private void evaluateChrom(int from, int to, int num_generation, double pl_per_min_importance, double num_trade_importance, double profit_factor_importance, double pl_vola_importance)
         {
             //do sim for all chromes
             eva = new List<double>();
@@ -151,20 +157,25 @@ namespace BTCTickSim
             var pl_per_min = aclists.Select(x => x.pl_per_min).ToList();
             var num_trade = aclists.Select(x => x.num_trade).ToList();
             var profit_factor = aclists.Select(x => x.profit_factor).ToList();
+            var pl_vola = aclists.Select(x => (1.0 / x.pl_vola)).ToList();
 
             if (num_generation == 0)
             {
                 min_pl_per_min = pl_per_min.Min();
-                max_pl_per_min = (pl_per_min.Max() - min_pl_per_min) * 10000;
+                max_pl_per_min = (pl_per_min.Max() - min_pl_per_min) * 1000;
                 base_pl_per_min = (pl_per_min_importance * max_pl_per_min) / (pl_per_min.Max() - min_pl_per_min);
                 
                 min_num_trade = num_trade.Min();
-                max_num_trade = (num_trade.Max() - min_num_trade) * 10000;
+                max_num_trade = (num_trade.Max() - min_num_trade) * 1000;
                 base_num_trade = (num_trade_importance * max_num_trade) / (num_trade.Max() - num_trade.Min());
 
                 min_profit_factor = profit_factor.Min();
-                max_profit_factor = (profit_factor.Max() - min_profit_factor) * 10000;
+                max_profit_factor = (profit_factor.Max() - min_profit_factor) * 1000;
                 base_profit_factor = (profit_factor_importance * max_profit_factor) / (profit_factor.Max() - profit_factor.Min());
+
+                min_pl_vola = pl_vola.Min();
+                max_pl_vola = (pl_vola.Max() - min_pl_vola) * 1000;
+                base_pl_vola = (pl_vola_importance * max_pl_vola) / (pl_vola.Max() - pl_vola.Min());
             }
 
             for (int i = 0; i < aclists.Count; i++)
@@ -172,8 +183,9 @@ namespace BTCTickSim
                 double eva_pl_per_min = (pl_per_min[i] >= min_pl_per_min) ? base_pl_per_min * (pl_per_min[i] - min_pl_per_min) / max_pl_per_min : min_pl_per_min;
                 double eva_num_trade = (num_trade[i] >= min_num_trade) ?  base_num_trade * (num_trade[i] - min_num_trade) / max_num_trade : min_num_trade;
                 double eva_profit_factor = (profit_factor[i] >= min_profit_factor) ? base_profit_factor * (profit_factor[i] - min_profit_factor) / max_profit_factor : min_profit_factor;
+                double eva_pl_vola = (pl_vola[i] >= min_pl_vola) ? base_pl_vola * (pl_vola[i] - min_pl_vola) / max_pl_vola : min_pl_vola;
 
-                eva.Add(eva_pl_per_min + eva_num_trade + eva_profit_factor );
+                eva.Add(Math.Pow(eva_pl_per_min,2) + eva_num_trade + eva_profit_factor + eva_pl_vola);
             }
             
             //check for max eva inde
@@ -186,7 +198,8 @@ namespace BTCTickSim
             best_ac_log.Add(aclists[m[0]]);
 
             //display info
-            Form1.Form1Instance.setLabel2("pl per min=" + Math.Round(ac_list[m[0]].pl_per_min, 2).ToString() + ", num trade=" + ac_list[m[0]].num_trade.ToString() + ", cum pl=" + Math.Round(ac_list[m[0]].cum_pl).ToString() + ", profit factor=" +Math.Round(ac_list[m[0]].profit_factor,2).ToString());
+            Form1.Form1Instance.setLabel2("pl per min=" + Math.Round(ac_list[m[0]].pl_per_min, 2).ToString() + ", num trade per hour=" + Math.Round(ac_list[m[0]].num_trade_per_hour,4).ToString() + ", cum pl=" + Math.Round(ac_list[m[0]].cum_pl).ToString() + ", profit factor=" +Math.Round(ac_list[m[0]].profit_factor,2).ToString()
+               +", pl vola="+ Math.Round(ac_list[m[0]].pl_vola,2).ToString());
         }
 
         private void rouletteSelection()
