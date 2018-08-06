@@ -76,10 +76,10 @@ namespace BTCTickSim
             bool res = false;
             double expected_num_trade = (Convert.ToDouble(ac_best.num_trade) / Convert.ToDouble(ac_best.end_ind - ac_best.start_ind)) * Convert.ToDouble(i - last_str_ind);
 
-            if ( (ac.num_trade - last_str_num_trade) >= 10 && (i - last_str_ind) < pl_check_perid)//alredy traded more than 15 times before pl_checl_period elapsed
+            if ( (ac.num_trade - last_str_num_trade) >= 3 && (i - last_str_ind) < pl_check_perid)//alredy traded more than 15 times before pl_checl_period elapsed
             {
-                double current_pl_per_min = current_pl_per_min = (ac.total_pl_log[i - 1] - ac.total_pl_log[last_str_ind]) / (TickData.time[i] - TickData.time[last_str_ind]).TotalMinutes;
-                if (ac_best.pl_per_min * 0.5 >= current_pl_per_min)
+                double current_pl_per_min = (ac.total_pl_log[i - 1] - ac.total_pl_log[last_str_ind]) / (TickData.time[i-1] - TickData.time[last_str_ind]).TotalMinutes;
+                if (ac_best.pl_per_min * 0.7 >= current_pl_per_min)
                 {
                     Form1.Form1Instance.setLabel3("num:" + (i - ac.start_ind).ToString() + " recalc because of pl per min" + ", current pl_per_min=" + current_pl_per_min.ToString());
                     res = true;
@@ -87,17 +87,17 @@ namespace BTCTickSim
             }
             else if (expected_num_trade >= 3 && (i - last_str_ind) >= pl_check_perid)//pl_check_period elapsed and expected num trade is more than 5
             {
-                double current_pl_per_min = current_pl_per_min = (ac.total_pl_log[i - 1] - ac.total_pl_log[i - pl_check_perid]) / (TickData.time[i] - TickData.time[i - pl_check_perid]).TotalMinutes;
-                if (ac_best.pl_per_min * 0.5 >= current_pl_per_min)
+                double current_pl_per_min = (ac.total_pl_log[i - 1] - ac.total_pl_log[i - pl_check_perid]) / (TickData.time[i-1] - TickData.time[i - pl_check_perid]).TotalMinutes;
+                if (ac_best.pl_per_min * 0.7 >= current_pl_per_min)
                 {
                     Form1.Form1Instance.setLabel3("num:" + (i - ac.start_ind).ToString() + " recalc because of pl per min" + ", current pl_per_min=" + current_pl_per_min.ToString());
                     res = true;
                 }
             }
-            else if ((ac.num_trade - last_str_num_trade) >= 5 && (i - last_str_ind) >= pl_check_perid)//pl_check_period elapsed and actual num trade is more than 10
+            else if ((ac.num_trade - last_str_num_trade) >= 3 && (i - last_str_ind) >= pl_check_perid)//pl_check_period elapsed and actual num trade is more than 10
             {
-                double current_pl_per_min = current_pl_per_min = (ac.total_pl_log[i - 1] - ac.total_pl_log[i - pl_check_perid]) / (TickData.time[i] - TickData.time[i - pl_check_perid]).TotalMinutes;
-                if (ac_best.pl_per_min * 0.5 >= current_pl_per_min)
+                double current_pl_per_min = (ac.total_pl_log[i - 1] - ac.total_pl_log[i - pl_check_perid]) / (TickData.time[i-1] - TickData.time[i - pl_check_perid]).TotalMinutes;
+                if (ac_best.pl_per_min * 0.7 >= current_pl_per_min)
                 {
                     Form1.Form1Instance.setLabel3("num:" + (i - ac.start_ind).ToString() + " recalc because of pl per min" + ", current pl_per_min=" + current_pl_per_min.ToString());
                     res = true;

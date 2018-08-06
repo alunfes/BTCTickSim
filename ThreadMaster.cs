@@ -38,21 +38,21 @@ namespace BTCTickSim
         {
             TickData.readTickData();
 
-            int start = 10000000;
+            int start = 5000000;
             int slide = 100000;
-            int opt_term = 180000;
-            int test_term = 180000;
+            int opt_term = 15000;
+            int test_term = 7500;
 
             using (StreamWriter sw = new StreamWriter("./multi ga.csv", false, Encoding.Default))
             {
                 sw.WriteLine("from,to,best pl per min,best total pl,best num trade per hour,best win rate,pl per min,total pl,win rate,total perfoamnce,pl_per_min_P,profit_factor_P,num_trade_per_hour_P");
-                for (int i = 0; i < 50; i++)
+                for (int i = 0; i < 10; i++)
                 {
                     GA ga = new GA();
                     int from = TickData.time.Count - start + (i * slide);
                     int to = TickData.time.Count - start + opt_term + (i * slide);
                     Form1.Form1Instance.setLabel3("#" + i.ToString() + ":doing for " + from.ToString() + " - " + to.ToString());
-                    var chro = ga.startGA(20, 30, from, to, false);
+                    var chro = ga.startGA(20, 50, from, to, false);
                     SIM s = new SIM();
                     var ac = s.startContrarianSashine(from, to, chro.Gene_exit_time_sec, chro.Gene_kairi_term, chro.Gene_entry_kairi, chro.Gene_rikaku_percentage, false);
                     var ac2 = s.startContrarianSashine(to, to + test_term, chro.Gene_exit_time_sec, chro.Gene_kairi_term, chro.Gene_entry_kairi, chro.Gene_rikaku_percentage, false);
@@ -94,7 +94,7 @@ namespace BTCTickSim
             TickData.readTickData();
 
             SIMContinuosGA sim = new SIMContinuosGA();
-            sim.startContrarianSashine(TickData.time.Count - 5000000, TickData.time.Count - 4700000, 30, 20, 400000, 12500, true);
+            sim.startContrarianSashine(TickData.time.Count - 5000000, TickData.time.Count - 4700000, 20, 30, 15000, 12500, true);
         }
     }
 }

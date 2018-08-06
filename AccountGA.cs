@@ -185,7 +185,7 @@ namespace BTCTickSim
 
         private double calcPLVolatility()
         {
-            if (num_trade > 1)
+            if (num_trade > 5)
             {
                 var list = cum_pl_log;
                 List<double> pl = new List<double>();
@@ -195,7 +195,7 @@ namespace BTCTickSim
                         pl.Add(list[i] - list[i - 1]);
                 }
 
-                if (pl.Count > 2)
+                if (pl.Count > 5)
                 {
                     double ave = pl.Average();
                     double sum_diff = 0;

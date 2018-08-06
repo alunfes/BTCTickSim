@@ -155,26 +155,26 @@ namespace BTCTickSim
                 aclists.Add(ac_list[i]);
 
             var pl_per_min = aclists.Select(x => x.pl_per_min).ToList();
-            var num_trade = aclists.Select(x => x.num_trade).ToList();
+            var num_trade = aclists.Select(x => x.num_trade_per_hour).ToList();
             var profit_factor = aclists.Select(x => x.profit_factor).ToList();
             var pl_vola = aclists.Select(x => (1.0 / x.pl_vola)).ToList();
 
-            if (num_generation == 0)
+            /*if (num_generation == 0)
             {
                 min_pl_per_min = pl_per_min.Min();
-                max_pl_per_min = (pl_per_min.Max() - min_pl_per_min) * 1000;
+                max_pl_per_min = (pl_per_min.Max() - min_pl_per_min) * 10000;
                 base_pl_per_min = (pl_per_min_importance * max_pl_per_min) / (pl_per_min.Max() - min_pl_per_min);
                 
                 min_num_trade = num_trade.Min();
-                max_num_trade = (num_trade.Max() - min_num_trade) * 1000;
+                max_num_trade = (num_trade.Max() - min_num_trade) * 10000;
                 base_num_trade = (num_trade_importance * max_num_trade) / (num_trade.Max() - num_trade.Min());
 
                 min_profit_factor = profit_factor.Min();
-                max_profit_factor = (profit_factor.Max() - min_profit_factor) * 1000;
+                max_profit_factor = (profit_factor.Max() - min_profit_factor) * 10000;
                 base_profit_factor = (profit_factor_importance * max_profit_factor) / (profit_factor.Max() - profit_factor.Min());
 
                 min_pl_vola = pl_vola.Min();
-                max_pl_vola = (pl_vola.Max() - min_pl_vola) * 1000;
+                max_pl_vola = (pl_vola.Max() - min_pl_vola) * 10000;
                 base_pl_vola = (pl_vola_importance * max_pl_vola) / (pl_vola.Max() - pl_vola.Min());
             }
 
@@ -185,11 +185,17 @@ namespace BTCTickSim
                 double eva_profit_factor = (profit_factor[i] >= min_profit_factor) ? base_profit_factor * (profit_factor[i] - min_profit_factor) / max_profit_factor : min_profit_factor;
                 double eva_pl_vola = (pl_vola[i] >= min_pl_vola) ? base_pl_vola * (pl_vola[i] - min_pl_vola) / max_pl_vola : min_pl_vola;
 
-                eva.Add(Math.Pow(eva_pl_per_min,2) + eva_num_trade + eva_profit_factor + eva_pl_vola);
+                eva.Add(Math.Pow(eva_pl_per_min,1.5) + eva_num_trade + eva_profit_factor + eva_pl_vola);
+            }*/
+
+            for (int i = 0; i < aclists.Count; i++)
+            {
+                double ev = pl_per_min[i] * 100 + num_trade[i] + profit_factor[i] / 10.0 + pl_vola[i];
+                eva.Add((ev>0) ? ev : 0);
             }
-            
-            //check for max eva inde
-            double max = eva.Max();
+
+                //check for max eva inde
+                double max = eva.Max();
             var m = eva.Select((p, i) => new { Content = p, Index = i })
     .Where(ano => ano.Content >= max)
     .Select(ano => ano.Index).ToList();
