@@ -8,12 +8,22 @@ namespace BTCTickSim
 {
     class Histogram
     {
+        public static List<double> calcTickCluster(double cluster_percentage, int start_ind, int num_class)
+        {
+            var res = new List<double>();
+            var hist_vola = makeHistogram(TickData.vola_500, 499, 100);
+            var hist_makairi = makeHistogram(TickData.makairi_500, 499, 100);
+            var hist_avevole = makeHistogram(TickData.ave_vol_500, 499, 100);
+
+            return res;
+        }
+
         public static (List<double> hist_class, int[] hist_num) makeHistogram(List<double> data, int start_ind, int num_class)
         {
             var hist_class = new List<double>();
             var hist_num = new int[num_class];
 
-            double max = 0;
+            double max = -999999;
             for (int i = start_ind; i < data.Count - 1; i++)
                 max = (data[i] > max) ? data[i] : max;
 
@@ -42,5 +52,17 @@ namespace BTCTickSim
             }
             return (hist_class, hist_num);
         }
-}
+
+      
+
+        public static List<double> makeCluster(List<double> hist_class, int[] hist_num, double cluster_percentage)
+        {
+            var res = new List<double>();
+
+            int num_cluster = (1.0 / cluster_percentage - Math.Truncate(1.0 / cluster_percentage) > 0) ? Convert.ToInt32(Math.Truncate(1.0 / cluster_percentage)) + 1 : Convert.ToInt32(Math.Truncate(1.0 / cluster_percentage));
+
+
+            return res;
+        }
+    }
 }

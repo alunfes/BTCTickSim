@@ -45,11 +45,7 @@ namespace BTCTickSim
         private void buttonTest_Click(object sender, EventArgs e)
         {
             TickData.readTickData();
-            var res = Histogram.makeHistogram(TickData.vola_500, 499, 100);
-            for(int i=0; i<res.hist_class.Count; i++)
-            {
-                addListBox(res.hist_class[i].ToString() + " : "+res.hist_num[i].ToString());
-            }
+            TickData.writeData(0, 10000);
         }
 
         private void buttonMultiGASIM_Click(object sender, EventArgs e)

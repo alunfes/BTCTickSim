@@ -66,6 +66,7 @@
     <Compile Include="RandomProvider.cs" />
     <Compile Include="SIM.cs" />
     <Compile Include="SIMContinuosGA.cs" />
+    <Compile Include="SIMContinuousGA2.cs" />
     <Compile Include="SIMGA.cs" />
     <Compile Include="Strategy.cs" />
     <Compile Include="StrategyGA.cs" />

@@ -22,6 +22,9 @@ namespace BTCTickSim
         public static List<double> vola_2500;
         public static List<double> vola_1000;
         public static List<double> vola_500;
+        public static List<double> makairi_500;
+        public static List<double> makairi_1000;
+        public static List<double> makairi_2500;
 
         public static void initialize()
         {
@@ -38,6 +41,9 @@ namespace BTCTickSim
             vola_2500 = new List<double>();
             vola_1000 = new List<double>();
             vola_500 = new List<double>();
+            makairi_500 = new List<double>();
+            makairi_1000 = new List<double>();
+            makairi_2500 = new List<double>();
         }
 
         public static void readTickData()
@@ -71,6 +77,26 @@ namespace BTCTickSim
                 calcAveVolAll();
                 calcSpeedAll();
                 calcVolaAll();
+                dcalcAllMaKairi();
+            }
+        }
+
+        public static void writeData(int from, int to)
+        {
+            using (StreamWriter sw = new StreamWriter("./tick data.csv", false, Encoding.Default))
+            {
+                try
+                {
+                    sw.WriteLine("time,price,size,makairi_500,vola_500,avevol_500");
+                    for (int i = from; i < to; i++)
+                    {
+                        sw.WriteLine(TickData.time[i] + "," + TickData.price[i] + "," + TickData.volume[i] + "," + TickData.makairi_500[i] + "," + TickData.vola_500[i] + "," + TickData.ave_vol_500[i]);
+                    }
+                }
+                catch (Exception e)
+                {
+                    System.Windows.Forms.MessageBox.Show(e.ToString());
+                }
             }
         }
 
@@ -107,7 +133,7 @@ namespace BTCTickSim
 
             double new_ave = 0;
             double new_sum_diff = 0;
-            for(int i=term; i<TickData.price.Count-1;i++)
+            for(int i=term; i<TickData.price.Count; i++)
             {
                 new_ave = ((ave * term) + TickData.price[i] - TickData.price[i - term]) / (double)term;
                 new_sum_diff = Math.Pow(TickData.price[i] - new_ave, 2) + sum_diff - Math.Pow(TickData.price[i - term] - ave, 2);
@@ -150,18 +176,50 @@ namespace BTCTickSim
         {
             List<double> res = new List<double>();
             double sum = 0;
-            for(int k=0; k<term; k++)
+            for(int j=0; j<term; j++)
             {
-                sum += TickData.price[k] * TickData.volume[k];
+                sum += TickData.price[j] * TickData.volume[j];
                 res.Add(0);
             }
             res.RemoveAt(res.Count - 1);
+            res.Add(sum / (double)term);
 
-            for(int j=0; j<TickData.price.Count - term - 1; j++)
+            for (int j=term; j<TickData.price.Count; j++)
             {
+                sum = sum + (TickData.price[j] * TickData.volume[j]) - (TickData.price[j - term] * TickData.volume[j - term]);
                 res.Add(sum / (double)term);
-                sum = sum - (TickData.price[j] * TickData.volume[j]) + (TickData.price[j + term] * TickData.volume[j + term]);
             }
+            return res;
+        }
+
+        private static void dcalcAllMaKairi()
+        {
+            makairi_500 = calcMaKairi(500);
+
+        }
+        private static List<double> calcMaKairi(int term)
+        {
+            var res = new List<double>();
+
+            //calc first sum / ave
+            double sum = 0;
+            double ma = 0;
+            for (int i = 0; i < term; i++)
+            {
+                sum += TickData.price[i];
+                res.Add(0);
+            }
+            res.RemoveAt(res.Count - 1);
+            ma = sum / (double)term;
+            res.Add((TickData.price[term-1] - ma) / ma);
+
+            for (int i=term; i<TickData.price.Count; i++)
+            {
+                sum = sum + TickData.price[i] - TickData.price[i - term];
+                ma = sum / (double)term;
+                res.Add((TickData.price[i] - ma) / ma);
+            }
+
             return res;
         }
 

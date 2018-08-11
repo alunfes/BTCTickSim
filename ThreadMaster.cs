@@ -40,8 +40,8 @@ namespace BTCTickSim
 
             int start = 5000000;
             int slide = 100000;
-            int opt_term = 15000;
-            int test_term = 7500;
+            int opt_term = 60000;
+            int test_term = 12500;
 
             using (StreamWriter sw = new StreamWriter("./multi ga.csv", false, Encoding.Default))
             {
@@ -93,7 +93,7 @@ namespace BTCTickSim
         {
             TickData.readTickData();
 
-            SIMContinuosGA sim = new SIMContinuosGA();
+            SIMContinuousGA2 sim = new SIMContinuousGA2();
             sim.startContrarianSashine(TickData.time.Count - 5000000, TickData.time.Count - 4700000, 20, 30, 15000, 12500, true);
         }
     }
