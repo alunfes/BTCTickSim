@@ -27,8 +27,7 @@ namespace BTCTickSim
             set { _form1Instance = value; }
             get { return _form1Instance; }
         }
-
-
+        
 
         private void buttonStart_Click(object sender, EventArgs e)
         {
@@ -44,10 +43,7 @@ namespace BTCTickSim
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
-            for(int i=-100; i<100; i++)
-            {
-                Form1.Form1Instance.addListBox(i.ToString() +", "+Math.Log(i));
-            }
+            TickData.readTickData(0);
         }
 
         private void buttonMultiGASIM_Click(object sender, EventArgs e)

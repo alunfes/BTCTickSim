@@ -63,6 +63,7 @@
     <Compile Include="GA.cs" />
     <Compile Include="GA2.cs" />
     <Compile Include="GAIsland.cs" />
+    <Compile Include="GAIslandMaster.cs" />
     <Compile Include="Histogram.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

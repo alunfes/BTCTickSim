@@ -10,7 +10,8 @@ namespace BTCTickSim
     {
         public Dictionary<int, GAIsland> islands;
         public Dictionary<int, Chrome> best_chrome;
-        public Dictionary<int, Account> best_ac;
+        public Dictionary<int, AccountGA> best_ac;
+
 
         public Chrome startGA(int num_chrom, int num_generation, int num_island, double immig_rate, int elite_crossover_generation, double pl_per_min_importance, double num_trade_importance, double pl_vola_importance, int from, int to, bool writelog)
         {
@@ -27,6 +28,7 @@ namespace BTCTickSim
                     islands[j].goToNextGeneration();
                 }
                 immigration(immig_rate, num_island, num_chrom);
+                checkBestChrome(i);
             }
             return new Chrome();
         }
@@ -35,7 +37,7 @@ namespace BTCTickSim
         {
             islands = new Dictionary<int, GAIsland>();
             best_chrome = new Dictionary<int, Chrome>();
-            best_ac = new Dictionary<int, Account>();
+            best_ac = new Dictionary<int, AccountGA>();
         }
 
         private void generateIsland(int num_chro, int num_island)
@@ -73,9 +75,19 @@ namespace BTCTickSim
             }
         }
 
-        private void checkBestChrome()
+        private void checkBestChrome(int generation)
         {
-
+            double max_pl_per_min = 0;
+            int max_ind = -1;
+            for (int i=0; i< islands.Count; i++)
+            {
+                if(max_pl_per_min < islands[i].best_ac_log[islands[i].best_ac_log.Count - 1].pl_per_min)
+                {
+                    max_pl_per_min = islands[i].best_ac_log[islands[i].best_ac_log.Count - 1].pl_per_min;
+                    max_ind = i;
+                }
+            }
+            best_ac.Add(generation, islands[max_ind].best_ac_log[islands[max_ind].best_ac_log.Count - 1]);
         }
     }
 }

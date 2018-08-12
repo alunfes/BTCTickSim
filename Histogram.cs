@@ -19,11 +19,11 @@ namespace BTCTickSim
             var clus_vola = makeCluster(TickData.vola_500, start_ind, hist_vola.hist_class, hist_vola.hist_num, cluster_percentage);
             var clus_makairi = makeCluster(TickData.makairi_500, start_ind, hist_makairi.hist_class, hist_makairi.hist_num, cluster_percentage);
             var clus_avevol = makeCluster(TickData.ave_vol_500, start_ind, hist_avevol.hist_class, hist_avevol.hist_num, cluster_percentage);
-            
+            */
 
-            var clus_vola = makeCluster2(TickData.vola_500, start_ind, cluster_percentage);
-            var clus_makairi = makeCluster2(TickData.makairi_500, start_ind,cluster_percentage);
-            var clus_avevol = makeCluster2(TickData.ave_vol_500, start_ind, cluster_percentage);
+            var clus_vola = makeCluster2(TickData.vola_500, start_ind, 3);
+            var clus_makairi = makeCluster2(TickData.makairi_500, start_ind,3);
+            var clus_avevol = makeCluster2(TickData.ave_vol_500, start_ind, 3);
 
             var clusters = new List<string>();
             for (int i = 0; i < clus_vola.Count; i++)
@@ -34,15 +34,19 @@ namespace BTCTickSim
                 }
             }
 
+            var clus_num = new int[clusters.Count];
             for (int i = 0; i < TickData.vola_500.Count; i++)
             {
                 for (int j = 0; j < clusters.Count; j++)
                 {
                     if (clusters[j] == (clus_vola[i] + "," + clus_makairi[i] + "," + clus_avevol[i]).ToString())
+                    {
                         res.Add(j);
+                        clus_num[j]++;
+                    }
                 }
             }
-            */
+            
             return res;
         }
 
@@ -104,25 +108,60 @@ namespace BTCTickSim
 
         private static double calcTotalVola(List<double> data, int start_ind)
         {
-            for(int i=0; i<start_ind; i++)
+            for (int i = 0; i < start_ind; i++)
             {
                 data.RemoveAt(i);
             }
             double ave = data.Average();
             double sum_diff = 0;
-            for(int i=0; i<data.Count; i++)
+            for (int i = 0; i < data.Count; i++)
             {
-                sum_diff += Math.Pow(ave - data[i],2);
+                sum_diff += Math.Pow(ave - data[i], 2);
             }
             return sum_diff / data.Count;
         }
 
-        /*private static List<int> makeCluster2(List<double> moto_data, int start_ind, int )
+        //num_splitter should be higher than 1
+        private static List<int> makeCluster2(List<double> moto_data, int start_ind, int num_splitter)
         {
+            var res = new List<int>();
+            var data = moto_data;
+            data.Sort();
 
-        }*/
+            var cluster_kijun = new double[num_splitter];
+            double kijun = (double)data.Count / (double)(num_splitter + 1);
+            for (int i = 0; i < num_splitter; i++)
+                cluster_kijun[i] = data[Convert.ToInt32(Math.Truncate((i + 1) * kijun))];
 
-            private static List<int> makeCluster(List<double> moto_data, int start_ind, List<double> hist_class, int[] hist_num, double cluster_percentage)
+            for (int i = 0; i < moto_data.Count; i++)
+            {
+                for (int j = 0; j < num_splitter; j++)
+                {
+                    if (j == 0)
+                    {
+                        if (moto_data[i] <= cluster_kijun[j])
+                        {
+                            res.Add(0);
+                        }
+                    }
+                    else
+                    {
+                        if (moto_data[i] > cluster_kijun[j - 1] && moto_data[i] <= cluster_kijun[j])
+                        {
+                            res.Add(j);
+                        }
+                    }
+                }
+                if (moto_data[i] > cluster_kijun[num_splitter-1])
+                {
+                    res.Add(num_splitter);
+                }
+            }
+
+            return res;
+        }
+
+        private static List<int> makeCluster(List<double> moto_data, int start_ind, List<double> hist_class, int[] hist_num, double cluster_percentage)
         {
             var res = new List<int>();
 
