@@ -36,7 +36,7 @@ namespace BTCTickSim
 
         private void gaForMultiplePeriod()
         {
-            TickData.readTickData();
+            TickData.readTickData(0);
 
             int start = 5000000;
             int slide = 100000;
@@ -73,14 +73,14 @@ namespace BTCTickSim
 
         private void doGA()
         {
-            TickData.readTickData();
+            TickData.readTickData(0);
             GA ga = new GA();
             ga.startGA(20, 30, TickData.time.Count - 6000000, TickData.time.Count - 4000000, true);
         }
 
         private void doSIm()
         {
-            TickData.readTickData();
+            TickData.readTickData(0);
            // s.startContrarianSashine(TickData.price.Count - 6000000, TickData.price.Count - 5000000, chro.Gene_exit_time_sec, chro.Gene_kairi_term, chro.Gene_entry_kairi, chro.Gene_rikaku_percentage, true);
 
             SIM s = new SIM();
@@ -91,7 +91,7 @@ namespace BTCTickSim
 
         private void doContiGASim()
         {
-            TickData.readTickData();
+            TickData.readTickData(0);
 
             SIMContinuousGA2 sim = new SIMContinuousGA2();
             sim.startContrarianSashine(TickData.time.Count - 5000000, TickData.time.Count - 4700000, 20, 30, 15000, 12500, true);

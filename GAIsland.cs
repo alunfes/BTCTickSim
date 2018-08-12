@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace BTCTickSim
 {
-    class GA
+    class GAIsland
     {
         public List<Chrome> chromes;
         public List<double> eva;
@@ -45,53 +45,15 @@ namespace BTCTickSim
         public double min_pl_vola;
         public double base_pl_vola;
 
+        public int island_ind;
+
         public void addAcList(int i, AccountGA ac)
         {
             lock (lockobj)
                 ac_list.Add(i, ac);
         }
-
-
-        public Chrome startGA(int num_chrom, int num_generation, int from, int to, bool writelog)
-        {
-            //Form1.Form1Instance.initializeListBox();
-            start_i = from;
-            end_i = to;
-
-            Form1.Form1Instance.setLabel("GA - from:" + TickData.time[from].ToString() + " to:" + TickData.time[to].ToString());
-
-            initialize();
-            generateRandomeChromes(num_chrom);
-
-            //generation loop
-            double sec = 0;
-            for (int i = 0; i < num_generation; i++)
-            {
-                sw.Start();
-
-                evaluateChrom(from, to, i, 1500, 250, 25, 25);
-                rouletteSelection();
-                crossOver();
-                mutation();
-                goToNextGeneration();
-
-                Form1.Form1Instance.addListBox("#" + i.ToString() + ": eva=" + Math.Round(best_eva_log[best_eva_log.Count - 1], 2).ToString() + ", pl per min=" + Math.Round(best_ac_log[best_ac_log.Count - 1].pl_per_min, 2).ToString()
-                    + ", num trade per hour=" + best_ac_log[best_ac_log.Count - 1].num_trade_per_hour.ToString() + ", Win Rate=" + Math.Round(best_ac_log[best_ac_log.Count - 1].win_rate, 2).ToString() + ", profit factor=" + Math.Round(best_ac_log[best_ac_log.Count - 1].profit_factor, 2).ToString()
-                    + ", Total PL Vola=" + Math.Round(best_ac_log[best_ac_log.Count - 1].total_pl_vola, 2).ToString());
-
-                sw.Stop();
-                sec += sw.Elapsed.TotalSeconds;
-                estimated_remaining_time = new TimeSpan(0, 0, Convert.ToInt32(Convert.ToDouble(num_generation - Convert.ToDouble(i + 1)) * (sec / (Convert.ToDouble(i + 1)))));
-                //Form1.Form1Instance.setLabel2("Estimated Remaining Time to Complete=" + estimated_remaining_time.ToString());
-            }
-            Form1.Form1Instance.setLabel2("GA calculation was completed, writing log..");
-            if (writelog) writeLog();
-            Form1.Form1Instance.setLabel2("Completed GA");
-
-            return chromes[best_chrom_ind[best_chrom_ind.Count - 1]];
-        }
-
-        public void initialize()
+        
+        public void initialize(int islandind)
         {
             chromes = new List<Chrome>();
             eva = new List<double>();
@@ -121,6 +83,7 @@ namespace BTCTickSim
             min_pl_vola = 0;
             base_pl_vola = 0;
 
+            island_ind = islandind;
         }
 
         public void generateRandomeChromes(int num)
@@ -131,14 +94,7 @@ namespace BTCTickSim
                 chromes.Add(c);
             }
         }
-
-
-        /*eva = performance + stability+ (only half late performance)
-         * eva = pl_per_min(1000) + stability(300) + num_trade(50) + later_p(150)
-         * perfoamnce = pl_per_min -min      (take only plus value
-         * stability = sum of diff from line from 0 to max_total_pl
-         * 
-         */
+        
         public void evaluateChrom(int from, int to, int num_generation, double pl_per_min_importance, double num_trade_importance, double profit_factor_importance, double pl_vola_importance)
         {
             //do sim for all chromes
@@ -196,10 +152,6 @@ namespace BTCTickSim
             best_chrom_ind.Add(m[0]);
             best_eva_log.Add(eva[m[0]]);
             best_ac_log.Add(aclists[m[0]]);
-
-            //display info
-            Form1.Form1Instance.setLabel2("pl per min=" + Math.Round(ac_list[m[0]].pl_per_min, 2).ToString() + ", num trade per hour=" + Math.Round(ac_list[m[0]].num_trade_per_hour, 4).ToString() + ", cum pl=" + Math.Round(ac_list[m[0]].cum_pl).ToString() + ", profit factor=" + Math.Round(ac_list[m[0]].profit_factor, 2).ToString()
-               + ", pl vola=" + Math.Round(ac_list[m[0]].pl_vola, 2).ToString());
         }
 
         public double calcLog(double v)
@@ -328,7 +280,7 @@ namespace BTCTickSim
                     new_gene_chromes.Add(chromes[i]);
             }
         }
-        
+
 
         public void mutation()
         {
@@ -355,31 +307,6 @@ namespace BTCTickSim
             for (int i = 0; i < new_gene_chromes.Count; i++)
                 chromes.Add(new_gene_chromes[i]);
         }
-
-        private void writeLog()
-        {
-            string path = "./ga log.csv";
-            using (StreamWriter sw = new StreamWriter(path, false, Encoding.Default))
-            {
-                sw.WriteLine("From=" + TickData.time[start_i].ToString() + " To=" + TickData.time[end_i].ToString());
-                sw.WriteLine("Generation,best chrom ind,Eva,best cum pl, best pl per min,best num trade");
-                for (int i = 0; i < best_eva_log.Count; i++)
-                {
-                    sw.WriteLine(i.ToString() + "," + best_chrom_ind[i].ToString() + "," + best_eva_log[i].ToString() + "," + best_ac_log[i].cum_pl.ToString()
-                        + "," + best_ac_log[i].pl_per_min.ToString() + "," + best_ac_log[i].num_trade.ToString());
-                }
-            }
-
-            string path2 = "./best chrome gene.csv";
-            using (StreamWriter sw = new StreamWriter(path2, false, Encoding.Default))
-            {
-                sw.WriteLine("From=" + TickData.time[start_i].ToString() + " To=" + TickData.time[end_i].ToString());
-                sw.WriteLine("From Index=" + start_i.ToString() + " To Index=" + end_i.ToString());
-
-                var c = chromes[best_chrom_ind[best_chrom_ind.Count - 1]];
-                sw.WriteLine("Exit Time Sec,Kairi Term,Entry Kairi,Rikaku");
-                sw.WriteLine(c.Gene_exit_time_sec.ToString() + "," + c.Gene_kairi_term.ToString() + "," + c.Gene_entry_kairi.ToString() + "," + c.Gene_rikaku_percentage.ToString());
-            }
-        }
+        
     }
 }

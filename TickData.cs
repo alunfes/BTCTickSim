@@ -26,6 +26,8 @@ namespace BTCTickSim
         public static List<double> makairi_1000;
         public static List<double> makairi_2500;
 
+        public static List<int> cluster;
+
         public static void initialize()
         {
             time = new List<DateTime>();
@@ -44,9 +46,11 @@ namespace BTCTickSim
             makairi_500 = new List<double>();
             makairi_1000 = new List<double>();
             makairi_2500 = new List<double>();
+
+            cluster = new List<int>();
         }
 
-        public static void readTickData()
+        public static void readTickData(int num_skip)
         {
             if (TickData.price == null)
             {
@@ -60,13 +64,16 @@ namespace BTCTickSim
                         int num = 0;
                         foreach (var line in File.ReadLines("tick.csv"))
                         {
-                            var e = line.Split(',');
-                            TickData.time.Add(FromUnixTime(Convert.ToInt64(e[0])));
-                            TickData.price.Add(Convert.ToDouble(e[1]));
-                            TickData.volume.Add(Convert.ToDouble(e[2]));
+                            if (num_skip <= num)
+                            {
+                                var e = line.Split(',');
+                                TickData.time.Add(FromUnixTime(Convert.ToInt64(e[0])));
+                                TickData.price.Add(Convert.ToDouble(e[1]));
+                                TickData.volume.Add(Convert.ToDouble(e[2]));
+                            }
                             num++;
                         }
-                        Form1.Form1Instance.setLabel("Tick Data: from-" + time[0].ToString() + ", to-" + time[time.Count - 1].ToString() + ", Num=" + num.ToString());
+                        Form1.Form1Instance.setLabel("Tick Data: from-" + time[0].ToString() + ", to-" + time[time.Count - 1].ToString() + ", Num=" + (num - num_skip).ToString());
                     }
                     catch (Exception e)
                     {
@@ -75,9 +82,10 @@ namespace BTCTickSim
                 }
 
                 calcAveVolAll();
-                calcSpeedAll();
+                //calcSpeedAll();
                 calcVolaAll();
                 dcalcAllMaKairi();
+                Histogram.calcTickCluster(0.33, 499, 100);
             }
         }
 

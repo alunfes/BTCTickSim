@@ -21,6 +21,7 @@ namespace BTCTickSim
         public double ave_pl;
         public double pl_per_min;
         public double pl_vola;
+        public double total_pl_vola;
         public double profit_factor;
         public List<double> quarter_performance;
         public double num_trade_per_hour;
@@ -74,6 +75,7 @@ namespace BTCTickSim
             ave_pl = 0;
             pl_per_min = 0;
             pl_vola = 0;
+            total_pl_vola = 0;
             profit_factor = 0;
             quarter_performance = new List<double>();
             num_trade_per_hour = 0;
@@ -181,6 +183,7 @@ namespace BTCTickSim
             profit_factor = calcProfitFactor();
             calcQuarterPerformance(4);
             pl_vola = calcPLVolatility();
+            total_pl_vola = calcTotalPLVola();
 
             if (writelog)
                 writeLog2();
@@ -244,6 +247,27 @@ namespace BTCTickSim
             }
             else
                 return 999;
+        }
+
+        private double calcTotalPLVola()
+        {
+            if (num_trade >= 3)
+            {
+                var list = total_pl_log;
+                List<double> pl = new List<double>();
+                for (int i = 1; i < list.Count; i++)
+                {
+                    if (list[i] - list[i - 1] != 0)
+                        pl.Add(list[i] - list[i - 1]);
+                }
+                double ave = pl.Average();
+                double sum_diff = 0;
+                foreach (var v in pl)
+                    sum_diff += Math.Pow(ave - v, 2);
+                return Math.Pow(sum_diff / (double)num_trade, 0.5);
+            }
+            else
+                return 9999;
         }
 
         private void calcQuarterPerformance(int numq)
@@ -586,6 +610,7 @@ namespace BTCTickSim
                 sw.WriteLine("ave pl," + ave_pl.ToString());
                 sw.WriteLine("num trade per hour," + num_trade_per_hour.ToString());
                 sw.WriteLine("pl vola," + pl_vola.ToString());
+                sw.WriteLine("total pl vola," + total_pl_vola.ToString());
                 sw.WriteLine("profit_factor," + profit_factor.ToString());
                 sw.WriteLine("quarter performance," + quarter_performance.Select(x=>x.ToString()+","));
                 sw.WriteLine("i,DateTime,Tick,Size,pl,cum pl,total pl,position,ave holding price,holding lot,action log");

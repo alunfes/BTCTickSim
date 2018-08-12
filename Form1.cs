@@ -44,8 +44,10 @@ namespace BTCTickSim
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
-            TickData.readTickData();
-            TickData.writeData(0, 10000);
+            for(int i=-100; i<100; i++)
+            {
+                Form1.Form1Instance.addListBox(i.ToString() +", "+Math.Log(i));
+            }
         }
 
         private void buttonMultiGASIM_Click(object sender, EventArgs e)
