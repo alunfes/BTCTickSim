@@ -217,7 +217,7 @@ namespace BTCTickSim
         {
             if (num_trade >= 3)
             {
-                var list = total_pl_log;
+                var list = total_pl_log.Values.ToList();
                 List<double> pl = new List<double>();
                 for (int i = 1; i < list.Count; i++)
                 {

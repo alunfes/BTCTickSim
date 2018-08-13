@@ -34,6 +34,12 @@ namespace BTCTickSim
             th.Start();
         }
 
+        public void startGAIsland()
+        {
+            Thread th = new Thread(gaIsland);
+            th.Start();
+        }
+
         private void gaForMultiplePeriod()
         {
             TickData.readTickData(0);
@@ -95,6 +101,14 @@ namespace BTCTickSim
 
             SIMContinuousGA2 sim = new SIMContinuousGA2();
             sim.startContrarianSashine(TickData.time.Count - 5000000, TickData.time.Count - 4700000, 20, 30, 15000, 12500, true);
+        }
+
+        private void gaIsland()
+        {
+            TickData.readTickData(0);
+
+            GAIslandMaster gim = new GAIslandMaster();
+            gim.startGA(15,100,4,0.01, 150, 10,10,10,TickData.price.Count-5000000, TickData.price.Count-4700000,false);
         }
     }
 }

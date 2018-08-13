@@ -17,6 +17,9 @@ namespace BTCTickSim
         {
             Form1.Form1Instance.setLabel("GA - from:" + TickData.time[from].ToString() + " to:" + TickData.time[to].ToString());
 
+            initialize(num_chrom, num_island);
+            generateIsland(num_chrom, num_island);
+
             for (int i = 0; i < num_generation; i++)
             {
                 for (int j = 0; j < num_island; j++)
@@ -29,8 +32,10 @@ namespace BTCTickSim
                 }
                 immigration(immig_rate, num_island, num_chrom);
                 checkBestChrome(i);
+                Form1.Form1Instance.addListBox("#"+i.ToString()+", pl per min="+Math.Round(best_ac[best_ac.Count-1].pl_per_min,2).ToString()+", num trade per hour="+ Math.Round(best_ac[best_ac.Count - 1].num_trade_per_hour,2).ToString()
+                    +", total pl vola="+ Math.Round(best_ac[best_ac.Count - 1].total_pl_vola,2).ToString());
             }
-            return new Chrome();
+            return best_chrome[num_generation-1];
         }
 
         private void initialize(int num_chro, int num_island)
@@ -60,10 +65,10 @@ namespace BTCTickSim
                 {
                     if(r.Next() < immigration_rate)
                     {
-                        int selected_island = r.Next(0, num_island + 1);
+                        int selected_island = r.Next(0, num_island);
                         int selected_chro = -1;
                         do
-                            selected_chro = r.Next(0, num_chrome + 1);
+                            selected_chro = r.Next(0, num_chrome);
                         while (selected_chro != islands[selected_island].best_chrom_ind[islands[selected_island].best_chrom_ind.Count - 1]);
 
                         islands[selected_island].chromes[selected_chro].Gene_exit_time_sec = (r.Next() > 0.5) ? islands[i].chromes[j].Gene_exit_time_sec : islands[selected_island].chromes[selected_chro].Gene_exit_time_sec;
@@ -77,7 +82,7 @@ namespace BTCTickSim
 
         private void checkBestChrome(int generation)
         {
-            double max_pl_per_min = 0;
+            double max_pl_per_min = -9999;
             int max_ind = -1;
             for (int i=0; i< islands.Count; i++)
             {

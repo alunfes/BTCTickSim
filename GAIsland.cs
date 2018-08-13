@@ -52,7 +52,7 @@ namespace BTCTickSim
             lock (lockobj)
                 ac_list.Add(i, ac);
         }
-        
+
         public void initialize(int islandind)
         {
             chromes = new List<Chrome>();
@@ -94,7 +94,7 @@ namespace BTCTickSim
                 chromes.Add(c);
             }
         }
-        
+
         public void evaluateChrom(int from, int to, int num_generation, double pl_per_min_importance, double num_trade_importance, double profit_factor_importance, double pl_vola_importance)
         {
             //do sim for all chromes
@@ -104,6 +104,7 @@ namespace BTCTickSim
                 SIMGA sim = new SIMGA();
                 addAcList(i, sim.startContrarianSashine(from, to, chromes[i].Gene_exit_time_sec, chromes[i].Gene_kairi_term, chromes[i].Gene_entry_kairi, chromes[i].Gene_rikaku_percentage));
             });
+
 
             //calc for performance eva
             List<AccountGA> aclists = new List<AccountGA>();
@@ -141,7 +142,8 @@ namespace BTCTickSim
                 double eva_profit_factor = (profit_factor[i] >= min_profit_factor) ? base_profit_factor * (profit_factor[i] - min_profit_factor) / max_profit_factor : min_profit_factor;
                 double eva_pl_vola = (pl_vola[i] >= min_pl_vola) ? base_pl_vola * (pl_vola[i] - min_pl_vola) / max_pl_vola : min_pl_vola;
 
-                eva.Add(pl_per_min_importance * calcLog(eva_pl_per_min) + num_trade_importance * calcLog(eva_num_trade) + pl_vola_importance * calcLog(eva_pl_vola));
+                eva.Add(pl_per_min_importance * calcLN(eva_pl_per_min+20) + num_trade_importance * calcLN(eva_num_trade + 20) + pl_vola_importance * calcLN(eva_pl_vola + 20));
+                //eva.Add(pl_per_min_importance * calcLN(eva_pl_per_min));
             }
 
             //check for max eva inde
@@ -154,28 +156,30 @@ namespace BTCTickSim
             best_ac_log.Add(aclists[m[0]]);
         }
 
-        public double calcLog(double v)
+        public double calcLN(double v)
         {
-            return Math.Log(v + 20);
+            return (v > 0) ? Math.Log(v) : 0;
         }
 
 
-        public void rouletteSelection()
+
+        public void roulettteSelectionNonElite(int current_generaiton, int elite_crossover_start_gen)
         {
             selected_chrom = new List<int>();
             var ran = RandomProvider.getRandom();
-
-            //make roulette board
             List<double> board = new List<double>();
             double sum = 0;
-            for (int i = 0; i < eva.Count; i++)
+            double[] eva_copy = eva.ToArray();
+            eva_copy[best_chrom_ind[best_chrom_ind.Count - 1]] = 0;
+
+            for (int i = 0; i < eva_copy.Length; i++)
             {
-                sum += eva[i];
+                sum += eva_copy[i];
                 board.Add(sum);
             }
 
             //roulette select
-            for (int i = 0; i < eva.Count; i++)
+            for (int i = 0; i < eva_copy.Length; i++)
             {
                 double roulette_v = ran.Next(0, Convert.ToInt32(Math.Truncate(sum) + 1));
                 for (int j = 1; j < board.Count; j++)
@@ -189,75 +193,7 @@ namespace BTCTickSim
                 if (0 <= roulette_v && board[0] >= roulette_v)
                     selected_chrom.Add(0);
             }
-            if (selected_chrom.Count != chromes.Count)
-                Debug.WriteLine("kita");
-        }
-
-        public void roulettteSelectionNonElite(int current_generaiton, int elite_crossover_start_gen)
-        {
-            selected_chrom = new List<int>();
-            var ran = RandomProvider.getRandom();
-            List<double> board = new List<double>();
-            double sum = 0;
-            if (current_generaiton < elite_crossover_start_gen)
-            {
-                for (int i = 0; i < eva.Count; i++)
-                {
-                    if (i != best_chrom_ind[best_chrom_ind.Count - 1])
-                    {
-                        sum += eva[i];
-                        board.Add(sum);
-                    }
-                }
-            }
-            else
-            {
-                for (int i = 0; i < eva.Count; i++)
-                {
-                    sum += eva[i];
-                    board.Add(sum);
-                }
-            }
-            //roulette select
-            if (current_generaiton < elite_crossover_start_gen)
-            {
-                for (int i = 0; i < eva.Count; i++)
-                {
-                    if (i != best_chrom_ind[best_chrom_ind.Count - 1])
-                    {
-                        double roulette_v = ran.Next(0, Convert.ToInt32(Math.Truncate(sum) + 1));
-                        for (int j = 1; j < board.Count; j++)
-                        {
-                            if (board[j - 1] < roulette_v && board[j] >= roulette_v)
-                            {
-                                selected_chrom.Add(j);
-                                break;
-                            }
-                        }
-                        if (0 <= roulette_v && board[0] >= roulette_v)
-                            selected_chrom.Add(0);
-                    }
-                    else
-                        selected_chrom.Add(best_chrom_ind[best_chrom_ind.Count - 1]);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < eva.Count; i++)
-                {
-                    double roulette_v = ran.Next(0, Convert.ToInt32(Math.Truncate(sum) + 1));
-                    for (int j = 1; j < board.Count; j++)
-                    {
-                        if (board[j - 1] < roulette_v && board[j] >= roulette_v)
-                        {
-                            selected_chrom.Add(j);
-                            break;
-                        }
-                    }
-                    if (0 <= roulette_v && board[0] >= roulette_v)
-                        selected_chrom.Add(0);
-                }
-            }
+            selected_chrom[best_chrom_ind[best_chrom_ind.Count - 1]] = best_chrom_ind[best_chrom_ind.Count - 1];
         }
 
         public void crossOver()
@@ -267,17 +203,12 @@ namespace BTCTickSim
             var ran = RandomProvider.getRandom();
             for (int i = 0; i < chromes.Count; i++)
             {
-                if (i != best_chrom_ind[best_chrom_ind.Count - 1])
-                {
-                    var c = new Chrome();
-                    c.Gene_exit_time_sec = (ran.NextDouble() > 0.5) ? chromes[selected_chrom[i]].Gene_exit_time_sec : chromes[i].Gene_exit_time_sec;
-                    c.Gene_kairi_term = (ran.NextDouble() > 0.5) ? chromes[selected_chrom[i]].Gene_kairi_term : chromes[i].Gene_kairi_term;
-                    c.Gene_entry_kairi = (ran.NextDouble() > 0.5) ? chromes[selected_chrom[i]].Gene_entry_kairi : chromes[i].Gene_entry_kairi;
-                    c.Gene_rikaku_percentage = (ran.NextDouble() > 0.5) ? chromes[selected_chrom[i]].Gene_rikaku_percentage : chromes[i].Gene_rikaku_percentage;
-                    new_gene_chromes.Add(c);
-                }
-                else
-                    new_gene_chromes.Add(chromes[i]);
+                var c = new Chrome();
+                c.Gene_exit_time_sec = (ran.NextDouble() > 0.5) ? chromes[selected_chrom[i]].Gene_exit_time_sec : chromes[i].Gene_exit_time_sec;
+                c.Gene_kairi_term = (ran.NextDouble() > 0.5) ? chromes[selected_chrom[i]].Gene_kairi_term : chromes[i].Gene_kairi_term;
+                c.Gene_entry_kairi = (ran.NextDouble() > 0.5) ? chromes[selected_chrom[i]].Gene_entry_kairi : chromes[i].Gene_entry_kairi;
+                c.Gene_rikaku_percentage = (ran.NextDouble() > 0.5) ? chromes[selected_chrom[i]].Gene_rikaku_percentage : chromes[i].Gene_rikaku_percentage;
+                new_gene_chromes.Add(c);
             }
         }
 
@@ -307,6 +238,6 @@ namespace BTCTickSim
             for (int i = 0; i < new_gene_chromes.Count; i++)
                 chromes.Add(new_gene_chromes[i]);
         }
-        
+
     }
 }

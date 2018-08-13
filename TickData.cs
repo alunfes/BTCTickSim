@@ -85,7 +85,7 @@ namespace BTCTickSim
                 //calcSpeedAll();
                 calcVolaAll();
                 dcalcAllMaKairi();
-                Histogram.calcTickCluster(0.33, 499, 100);
+                //Histogram.calcTickCluster(0.33, 499, 100);
             }
         }
 
