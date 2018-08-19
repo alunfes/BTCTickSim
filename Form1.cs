@@ -64,6 +64,12 @@ namespace BTCTickSim
             th.startGAIsland();
         }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            ThreadMaster th = new ThreadMaster();
+            th.startGAIsland2();
+        }
+
         #region Delegate
         private delegate void setLabel1Delegate(string text);
         public void setLabel(string text)
@@ -131,6 +137,7 @@ namespace BTCTickSim
             this.listBox2.Items.Add(text);
             this.listBox2.TopIndex = this.listBox2.Items.Count - 1;
         }
+
 
 
 

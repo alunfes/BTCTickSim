@@ -176,8 +176,8 @@ namespace BTCTickSim
             ave_pl = cum_pl / (double)num_trade;
             win_rate = win_rate / (double)num_trade;
             end_ind = i;
-            pl_per_min = total_pl_log.Values.ToList()[total_pl_log.Count - 1] / (TickData.time[end_ind] - TickData.time[start_ind]).TotalMinutes;
             num_trade_per_hour = Convert.ToDouble(num_trade) / (TickData.time[end_ind] - TickData.time[start_ind]).TotalHours;
+            pl_per_min = (num_trade_per_hour >0) ? total_pl_log.Values.ToList()[total_pl_log.Values.ToList().Count - 1] / (TickData.time[end_ind] - TickData.time[start_ind]).TotalMinutes : 0;
             sharp_ratio = (pl_vola > 1) ? total_pl_log[total_pl_log.Count - 1] / pl_vola : 0;
 
             profit_factor = calcProfitFactor();

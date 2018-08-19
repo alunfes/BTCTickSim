@@ -54,6 +54,7 @@
     <Compile Include="Chrome.cs" />
     <Compile Include="Chrome2.cs" />
     <Compile Include="DecisionData.cs" />
+    <Compile Include="DecisionData2.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -63,7 +64,9 @@
     <Compile Include="GA.cs" />
     <Compile Include="GA2.cs" />
     <Compile Include="GAIsland.cs" />
+    <Compile Include="GAIsland2.cs" />
     <Compile Include="GAIslandMaster.cs" />
+    <Compile Include="GAIslandMaster2.cs" />
     <Compile Include="Histogram.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -72,6 +75,7 @@
     <Compile Include="SIMContinuosGA.cs" />
     <Compile Include="SIMContinuousGA2.cs" />
     <Compile Include="SIMGA.cs" />
+    <Compile Include="SIMGA2.cs" />
     <Compile Include="Strategy.cs" />
     <Compile Include="StrategyGA.cs" />
     <Compile Include="StrategyGA2.cs" />
