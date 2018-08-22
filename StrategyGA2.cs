@@ -8,7 +8,7 @@ namespace BTCTickSim
 {
     class StrategyGA2
     {
-        public static DecisionData2 contrarianSashine(AccountGA ac, int i, Chrome2 chro, DecisionData2 pre_dd)
+        public static DecisionData2 contrarianSashine(AccountGA2 ac, int i, Chrome2 chro, DecisionData2 pre_dd)
         {
             DecisionData2 dd = new DecisionData2();
             

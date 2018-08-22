@@ -121,8 +121,33 @@ namespace BTCTickSim
         {
             TickData.readTickData(0);
 
-            GAIslandMaster2 gim = new GAIslandMaster2();
-            gim.startGA(TickData.price.Count - 5000000, TickData.price.Count - 4500000, 3, 20, 30, 4, 0.05, 20, 30, 10, 10, true);
+            using (StreamWriter sw = new StreamWriter("./multi ga.csv", false, Encoding.Default))
+            {
+                int opt_period = 420000;
+                int sim_period = 180000;
+                int slide = 100000;
+                sw.WriteLine("pl per min,num trade,vola,fired[0],fired[1],fired[2],pl per min,num trade,vola,fired[0],fired[1],fired[2]");
+                for (int i = 0; i < 30; i++)
+                {
+                    GAIslandMaster2 gim = new GAIslandMaster2();
+                    int from = TickData.price.Count - 6000000 + i*slide;
+                    int to = from + opt_period;
+                    var c = gim.startGA(from, to, 3, 20, 30, 4, 0.05, 15, 30, 10, 10, true);
+                    //Form1.Form1Instance.addListBox2("GA period - "+ ", fired box num=" + c.box_fired_num[0] + " : " + c.box_fired_num[1] + " : " + c.box_fired_num[2]);
+                    var s = new SIM2();
+                    var ac = s.startContrarianTrendFollowSashine(from, to, c);
+                    Form1.Form1Instance.addListBox2("GA period - pl per min=" + Math.Round(ac.pl_per_min, 2) + ",num trade=" + Math.Round(ac.num_trade_per_hour, 2) + ", vola=" + Math.Round(ac.total_pl_vola, 2) + ", fired box num=" + ac.fired_box_ind_num[0] + " : " + ac.fired_box_ind_num[1] + " : " + ac.fired_box_ind_num[2]);
+                    
+
+                    s = new SIM2();
+                    c.initializeFiredBoxNum();
+                    var ac2 = s.startContrarianTrendFollowSashine(to, to + sim_period, c);
+                    Form1.Form1Instance.addListBox2("SIM period - pl per min=" + Math.Round(ac2.pl_per_min, 2) + ",num trade=" + Math.Round(ac2.num_trade_per_hour, 2) + ", vola=" + Math.Round(ac2.total_pl_vola, 2) + ", fired box num=" + ac2.fired_box_ind_num[0] + " : " + ac2.fired_box_ind_num[1] + " : " + ac2.fired_box_ind_num[2]);
+
+                    sw.WriteLine(Math.Round(ac.pl_per_min, 2) + "," + Math.Round(ac.num_trade_per_hour,6) + "," + Math.Round(ac.total_pl_vola) + "," + ac.fired_box_ind_num[0] + "," + ac.fired_box_ind_num[1] + "," + ac.fired_box_ind_num[2] +
+                        ","+ Math.Round(ac2.pl_per_min, 2) + "," + Math.Round(ac2.num_trade_per_hour,6) + "," + Math.Round(ac2.total_pl_vola) + "," + ac2.fired_box_ind_num[0] + "," + ac2.fired_box_ind_num[1] + "," + ac2.fired_box_ind_num[2]);
+                }
+            }
         }
     }
 }

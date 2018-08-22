@@ -12,13 +12,13 @@ namespace BTCTickSim
         public List<Chrome2> chromes;
         public List<double> eva;
         public List<int> selected_chrom;
-        public Dictionary<int, AccountGA> ac_list;
+        public Dictionary<int, AccountGA2> ac_list;
         public List<Chrome2> new_gene_chromes;
         private object lockobj = new object();
 
         public List<double> best_eva_log;
         public List<int> best_chrom_ind;
-        public List<AccountGA> best_ac_log;
+        public List<AccountGA2> best_ac_log;
 
         private int start_i;
         private int end_i;
@@ -49,7 +49,7 @@ namespace BTCTickSim
         public int num_box;
         
 
-        public void addAcList(int i, AccountGA ac)
+        public void addAcList(int i, AccountGA2 ac)
         {
             lock (lockobj)
                 ac_list.Add(i, ac);
@@ -61,9 +61,9 @@ namespace BTCTickSim
             eva = new List<double>();
             best_chrom_ind = new List<int>();
             selected_chrom = new List<int>();
-            ac_list = new Dictionary<int, AccountGA>();
+            ac_list = new Dictionary<int, AccountGA2>();
             new_gene_chromes = new List<Chrome2>();
-            best_ac_log = new List<AccountGA>();
+            best_ac_log = new List<AccountGA2>();
             best_eva_log = new List<double>();
 
             base_total_eva = 0;
@@ -103,7 +103,7 @@ namespace BTCTickSim
         {
             //do sim for all chromes
             eva = new List<double>();
-            ac_list = new Dictionary<int, AccountGA>();
+            ac_list = new Dictionary<int, AccountGA2>();
             Parallel.For(0, chromes.Count, i => {
                 SIMGA2 sim = new SIMGA2();
                 addAcList(i, sim.startContrarianTrendFollowSashine(from, to, chromes[i]));
@@ -111,7 +111,7 @@ namespace BTCTickSim
 
 
             //calc for performance eva
-            List<AccountGA> aclists = new List<AccountGA>();
+            var aclists = new List<AccountGA2>();
             for (int i = 0; i < chromes.Count; i++)
                 aclists.Add(ac_list[i]);
 
@@ -213,6 +213,7 @@ namespace BTCTickSim
             for (int i = 0; i < chromes.Count; i++)
             {
                 var c = new Chrome2(from, to, num_box);
+                c.box_fired_num = chromes[i].box_fired_num;
                 for(int j=0; j<c.num_box; j++)
                 {
                     if((ran.NextDouble() > 0.5))

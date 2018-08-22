@@ -10,7 +10,7 @@ namespace BTCTickSim
     {
         public Dictionary<int, GAIsland2> islands;
         public Dictionary<int, Chrome2> best_chrome;
-        public Dictionary<int, AccountGA> best_ac;
+        public Dictionary<int, AccountGA2> best_ac;
 
 
         public Chrome2 startGA(int from, int to, int numbox, int num_chrom, int num_generation, int num_island, double immig_rate, int elite_crossover_generation, double pl_per_min_importance, double num_trade_importance, double pl_vola_importance, bool writelog)
@@ -32,9 +32,13 @@ namespace BTCTickSim
                 }
                 immigration(immig_rate, num_island, num_chrom);
                 checkBestChrome(i);
+
+                SIMGA2 s = new SIMGA2();
+                s.startContrarianTrendFollowSashine(from, to, best_chrome[best_chrome.Count - 1]);
                 Form1.Form1Instance.addListBox("#" + i.ToString() + ", pl per min=" + Math.Round(best_ac[best_ac.Count - 1].pl_per_min, 2).ToString() + ", num trade per hour=" + Math.Round(best_ac[best_ac.Count - 1].num_trade_per_hour, 2).ToString()
                     + ", total pl vola=" + Math.Round(best_ac[best_ac.Count - 1].total_pl_vola, 2).ToString());
             }
+
             return best_chrome[num_generation - 1];
         }
 
@@ -42,7 +46,7 @@ namespace BTCTickSim
         {
             islands = new Dictionary<int, GAIsland2>();
             best_chrome = new Dictionary<int, Chrome2>();
-            best_ac = new Dictionary<int, AccountGA>();
+            best_ac = new Dictionary<int, AccountGA2>();
         }
 
         private void generateIsland(int num_chro, int num_island, int from, int to, int numbox)

@@ -63,7 +63,7 @@
             // 
             // buttonTest
             // 
-            this.buttonTest.Location = new System.Drawing.Point(303, 897);
+            this.buttonTest.Location = new System.Drawing.Point(49, 923);
             this.buttonTest.Name = "buttonTest";
             this.buttonTest.Size = new System.Drawing.Size(194, 83);
             this.buttonTest.TabIndex = 2;
@@ -128,7 +128,7 @@
             this.listBox2.Location = new System.Drawing.Point(303, 528);
             this.listBox2.Name = "listBox2";
             this.listBox2.ScrollAlwaysVisible = true;
-            this.listBox2.Size = new System.Drawing.Size(1180, 340);
+            this.listBox2.Size = new System.Drawing.Size(1180, 484);
             this.listBox2.TabIndex = 8;
             // 
             // buttonGA

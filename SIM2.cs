@@ -6,38 +6,38 @@ using System.Threading.Tasks;
 
 namespace BTCTickSim
 {
-    class SIMGA2
+    class SIM2
     {
-        public AccountGA2 startContrarianTrendFollowSashine(int from ,int to, Chrome2 chro)
+        public AccountGA2 startContrarianTrendFollowSashine(int from, int to, Chrome2 chro)
         {
             var ac = new AccountGA2(chro.num_box);
             var pre_dd = new DecisionData2();
-            for(int i=from; i<to; i++)
+            for (int i = from; i < to; i++)
             {
                 var tdd = StrategyGA2.contrarianSashine(ac, i, chro, pre_dd);
-                //if(tdd.fired_box_ind>=0)
-                //    chro.box_fired_num[tdd.fired_box_ind]++;
+                if(tdd.fired_box_ind>=0)
+                    chro.box_fired_num[tdd.fired_box_ind]++;
                 pre_dd = tdd;
 
-                if(tdd.position == "Exit_All")
+                if (tdd.position == "Exit_All")
                 {
                     ac.exitAllOrder(i);
                 }
-                else if(tdd.price_tracing_order)
+                else if (tdd.price_tracing_order)
                 {
-                    if(tdd.position == "Long" || tdd.position == "Short")
+                    if (tdd.position == "Long" || tdd.position == "Short")
                     {
                         ac.entryPriceTracingOrder(i, tdd.position, tdd.lot);
                     }
-                    else if(tdd.position == "Cancel_All")
+                    else if (tdd.position == "Cancel_All")
                     {
                         ac.cancelAllOrders(i);
                     }
-                    else if(tdd.position == "Cancel_PriceTracingOrder")
+                    else if (tdd.position == "Cancel_PriceTracingOrder")
                     {
                         ac.cancelPriceTracingOrder(i);
                     }
-                    else if(tdd.position == "Long" || tdd.position == "Short")
+                    else if (tdd.position == "Long" || tdd.position == "Short")
                     {
                         ac.entryOrder(i, tdd.position, tdd.price, tdd.lot);
                     }

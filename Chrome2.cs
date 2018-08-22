@@ -22,6 +22,7 @@ namespace BTCTickSim
 
         public int start_ind;
         public int end_ind;
+        public int[] box_fired_num;
 
         public double ceil_vola;
         public double floor_vola;
@@ -39,9 +40,15 @@ namespace BTCTickSim
             var vol = TickData.ave_vol_500.GetRange(start, end - start);
             ceil_avevol = vol.Max();
             floor_avevol = vol.Min();
-            
+
+            box_fired_num = new int[n_box];
 
             generateInitialChrome();
+        }
+
+        public void initializeFiredBoxNum()
+        {
+            box_fired_num = new int[num_box];
         }
 
         public void generateInitialChrome()
