@@ -1,0 +1,15 @@
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\bin\Release\BTCTickSim.exe.config
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\bin\Release\BTCTickSim.exe.manifest
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\bin\Release\BTCTickSim.application
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\bin\Release\BTCTickSim.exe
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\bin\Release\BTCTickSim.pdb
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\bin\Release\System.ValueTuple.dll
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\bin\Release\System.ValueTuple.xml
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Release\BTCTickSim.Form1.resources
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Release\BTCTickSim.Properties.Resources.resources
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Release\BTCTickSim.csproj.GenerateResource.Cache
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Release\BTCTickSim.csproj.CoreCompileInputs.cache
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Release\BTCTickSim.exe.manifest
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Release\BTCTickSim.application
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Release\BTCTickSim.exe
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Release\BTCTickSim.pdb

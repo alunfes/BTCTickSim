@@ -8,13 +8,13 @@ namespace BTCTickSim
 {
     class SIM2
     {
-        public AccountGA2 startContrarianTrendFollowSashine(int from, int to, Chrome2 chro)
+        public AccountGA2 startContrarianTrendFollowSashine(int from, int to, Chrome2 chro, bool no_trade_non_fired_box)
         {
             var ac = new AccountGA2(chro.num_box);
             var pre_dd = new DecisionData2();
             for (int i = from; i < to; i++)
             {
-                var tdd = StrategyGA2.contrarianSashine(ac, i, chro, pre_dd);
+                var tdd = StrategyGA2.contrarianSashine(ac, i, chro, pre_dd, no_trade_non_fired_box);
                 if(tdd.fired_box_ind>=0)
                     chro.box_fired_num[tdd.fired_box_ind]++;
                 pre_dd = tdd;

@@ -23,3 +23,7 @@ C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\bin\Debug\System
 C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\bin\Debug\System.ValueTuple.xml
 C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.exe
 C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.pdb
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\bin\Debug\BTCTickSim.exe.manifest
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\bin\Debug\BTCTickSim.application
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.exe.manifest
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.application

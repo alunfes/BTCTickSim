@@ -8,7 +8,7 @@ namespace BTCTickSim
 {
     class StrategyGA2
     {
-        public static DecisionData2 contrarianSashine(AccountGA2 ac, int i, Chrome2 chro, DecisionData2 pre_dd)
+        public static DecisionData2 contrarianSashine(AccountGA2 ac, int i, Chrome2 chro, DecisionData2 pre_dd, bool no_trade_non_fired_box)
         {
             DecisionData2 dd = new DecisionData2();
             
@@ -26,6 +26,15 @@ namespace BTCTickSim
                         entry_signs[j] = (chro.gene_kirikae[j]) ? -1 : 1;
                     else if (kairi <= chro.gene_entry_kairi[j])
                         entry_signs[j] = (chro.gene_kirikae[j]) ? 1 : -1;
+                }
+            }
+
+            //prohibit trade using non fired box in GA period
+            if (no_trade_non_fired_box)
+            {
+                for (int j = 0; j <chro.box_fired_num.Length; j++)
+                {
+                    entry_signs[j] = (chro.box_fired_num[j] < 3) ? 0 : entry_signs[j];
                 }
             }
 
@@ -68,6 +77,8 @@ namespace BTCTickSim
                     entry_sign = (entry_signs[selected_box] == 1) ? "Long" : "Short";
             }
             
+
+
             if (entry_sign != "")
             {
                 if (ac.holding_position == "None" && ac.price_tracing_order_flg == false)
