@@ -136,7 +136,7 @@ namespace BTCTickSim
                     //Form1.Form1Instance.addListBox2("GA period - "+ ", fired box num=" + c.box_fired_num[0] + " : " + c.box_fired_num[1] + " : " + c.box_fired_num[2]);
                     var s = new SIM2();
                     var ac = s.startContrarianTrendFollowSashine(from, to, c, false);
-                    Form1.Form1Instance.addListBox2("GA period - pl per min=" + Math.Round(ac.pl_per_min, 2) + ",num trade=" + Math.Round(ac.num_trade_per_hour, 2) + ", vola=" + Math.Round(ac.total_pl_vola, 2) + ", fired box num=" + ac.fired_box_ind_num[0] + " : " + ac.fired_box_ind_num[1] + " : " + ac.fired_box_ind_num[2]);
+                    Form1.Form1Instance.addListBox2(i.ToString()+" - "+"GA period - pl per min=" + Math.Round(ac.pl_per_min, 2) + ",num trade=" + Math.Round(ac.num_trade_per_hour, 2) + ", vola=" + Math.Round(ac.total_pl_vola, 2) + ", fired box num=" + ac.fired_box_ind_num[0] + " : " + ac.fired_box_ind_num[1] + " : " + ac.fired_box_ind_num[2]);
                     
 
                     s = new SIM2();

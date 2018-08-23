@@ -108,6 +108,47 @@ namespace BTCTickSim
             }
         }
 
+        public static void WriteRowData(int numw)
+        {
+            TickData.initialize();
+            List<string> data = new List<string>();
+            using (System.IO.StreamReader sr = new System.IO.StreamReader("tick.csv", Encoding.UTF8, false))
+            {
+                try
+                {
+                    Form1.Form1Instance.setLabel("reading data");
+                    int num = 0;
+                    foreach (var line in File.ReadLines("tick.csv"))
+                    {
+                        data.Add(line);
+                        num++;
+                    }
+                    Form1.Form1Instance.setLabel("Copy "+data.Count.ToString() + " data to a new file.");
+                }
+                catch (Exception e)
+                {
+                    System.Windows.Forms.MessageBox.Show(e.ToString());
+                }
+            }
+
+            using (StreamWriter sw = new StreamWriter("./tick data_new.csv", false, Encoding.Default))
+            {
+                try
+                {
+                    Form1.Form1Instance.setLabel("writing data to a new file");
+                    int n = 0;
+                    for(int i= data.Count-numw; i<data.Count; i++)
+                    {
+                        sw.WriteLine(data[i]);
+                    }
+                }
+                catch (Exception e)
+                {
+                    System.Windows.Forms.MessageBox.Show(e.ToString());
+                }
+            }
+        }
+
         private static DateTime FromUnixTime(long unixTime)
         {
             return DateTimeOffset.FromUnixTimeSeconds(unixTime).LocalDateTime;

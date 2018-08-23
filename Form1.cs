@@ -43,7 +43,7 @@ namespace BTCTickSim
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
-            TickData.readTickData(0);
+            TickData.WriteRowData(5000000);
         }
 
         private void buttonMultiGASIM_Click(object sender, EventArgs e)
