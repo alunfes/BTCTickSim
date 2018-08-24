@@ -7,12 +7,15 @@ using System.IO;
 
 namespace BTCTickSim
 {
-    class Account
+    class Account2
     {
         private double order_time_lag = 1.0;
 
         public int start_ind;
         public int end_ind;
+
+        public int[] fired_box_ind_num;
+        public int num_box;
 
         public double pl;
         public double cum_pl;
@@ -23,9 +26,10 @@ namespace BTCTickSim
         public double pl_vola;
         public double total_pl_vola;
         public double profit_factor;
+        public double sharp_ratio;
         public List<double> quarter_performance;
         public double num_trade_per_hour;
-        public double sharp_ratio; 
+        public double[] cum_pl_fired_box;
 
         public List<double> unexe_price;
         public List<double> unexe_lot;
@@ -40,8 +44,6 @@ namespace BTCTickSim
         public int price_tracing_order_i;
         public bool price_tracing_order_flg;
 
-
-
         public bool cancel_all_orders;
         public DateTime cancel_all_order_time;
         public int cancel_all_order_i;
@@ -53,20 +55,23 @@ namespace BTCTickSim
         public string holding_position; //Long, Short, None
 
         //log
+        public Dictionary<int, double> total_pl_log;
         private Dictionary<int, double> pl_log;
         private Dictionary<int, double> cum_pl_log;
         private Dictionary<int, string> position_log;
         private Dictionary<int, double> holding_price_log;
         private Dictionary<int, double> lot_log;
-        private Dictionary<int, string> action_log;
         private Dictionary<string, string> action_log2;
         private int action_log_num;
-        public Dictionary<int, double> total_pl_log;
 
-        public Account()
+        public Account2(Chrome2 chro)
         {
             start_ind = 999999999;
             end_ind = 0;
+            this.num_box = chro.num_box;
+            fired_box_ind_num = new int[num_box];
+            fired_box_ind_num = chro.box_fired_num;
+            cum_pl_fired_box = new double[num_box];
 
             pl = 0;
             cum_pl = 0;
@@ -81,20 +86,19 @@ namespace BTCTickSim
             num_trade_per_hour = 0;
             sharp_ratio = 0;
 
-            initializeUnexeData();
-            initializeCancelAllData();
-            initializeHoldingData();
-            initializePriceTracingOrder();
-
             pl_log = new Dictionary<int, double>();
             cum_pl_log = new Dictionary<int, double>();
             position_log = new Dictionary<int, string>();
             lot_log = new Dictionary<int, double>();
             holding_price_log = new Dictionary<int, double>();
-            action_log = new Dictionary<int, string>();
             action_log2 = new Dictionary<string, string>();
             total_pl_log = new Dictionary<int, double>();
             action_log_num = 0;
+
+            initializeUnexeData();
+            initializeCancelAllData();
+            initializeHoldingData();
+            initializePriceTracingOrder();
         }
 
         private void initializeUnexeData()
@@ -141,15 +145,10 @@ namespace BTCTickSim
             unexe_cancel.RemoveAt(unexe_ind);
         }
 
-        public void takeActionLog(int i, string v)
-        {
-            action_log2.Add(i.ToString() + "-" + action_log_num.ToString(), v);
-            action_log_num++;
-        }
 
-        public void moveToNext(int i)
+        public void moveToNext(int i, int fired_box_ind)
         {
-            checkExecution(i);
+            checkExecution(i, fired_box_ind);
             checkCancel(i);
             updatePriceTracingOrder(i);
             pl = calcPL(i);
@@ -159,13 +158,13 @@ namespace BTCTickSim
             position_log.Add(i, holding_position);
             lot_log.Add(i, ave_holding_lot);
             holding_price_log.Add(i, ave_holding_price);
-            action_log_num = 0;
             start_ind = (i < start_ind) ? i : start_ind;
+            action_log_num = 0;
         }
 
-        public void lastDayOperation(int i, bool writelog)
+        public void lastDayOperation(int i, Chrome2 chro, int fired_box_ind, bool writelog)
         {
-            checkExecution(i);
+            checkExecution(i, fired_box_ind);
             checkCancel(i);
             pl = calcPL(i);
             pl_log.Add(i, pl);
@@ -177,7 +176,7 @@ namespace BTCTickSim
             win_rate = win_rate / (double)num_trade;
             end_ind = i;
             num_trade_per_hour = Convert.ToDouble(num_trade) / (TickData.time[end_ind] - TickData.time[start_ind]).TotalHours;
-            pl_per_min = (num_trade_per_hour >0) ? total_pl_log.Values.ToList()[total_pl_log.Values.ToList().Count - 1] / (TickData.time[end_ind] - TickData.time[start_ind]).TotalMinutes : 0;
+            pl_per_min = (num_trade_per_hour > 0) ? total_pl_log.Values.ToList()[total_pl_log.Values.ToList().Count - 1] / Convert.ToDouble((TickData.time[end_ind] - TickData.time[start_ind]).TotalMinutes) : 0;
             sharp_ratio = (pl_vola > 1) ? total_pl_log[total_pl_log.Count - 1] / pl_vola : 0;
 
             profit_factor = calcProfitFactor();
@@ -185,8 +184,17 @@ namespace BTCTickSim
             pl_vola = calcPLVolatility();
             total_pl_vola = calcTotalPLVola();
 
+            for (int j = 0; j < fired_box_ind_num.Length; j++)
+                fired_box_ind_num[j] = chro.box_fired_num[j] - fired_box_ind_num[j];
+            
             if (writelog)
                 writeLog2();
+        }
+
+        public void takeActionLog(int i, string v)
+        {
+            action_log2.Add(i.ToString() + "-" + action_log_num.ToString(), v);
+            action_log_num++;
         }
 
         public double calcPL(int i)
@@ -199,7 +207,7 @@ namespace BTCTickSim
         {
             if (num_trade > 0)
             {
-                var list = cum_pl_log.Values.ToList();
+                var list = cum_pl_log;
                 List<double> pl = new List<double>();
                 for (int i = 1; i < list.Count; i++)
                 {
@@ -226,7 +234,7 @@ namespace BTCTickSim
         {
             if (num_trade > 5)
             {
-                var list = cum_pl_log.Values.ToList();
+                var list = cum_pl_log;
                 List<double> pl = new List<double>();
                 for (int i = 1; i < list.Count; i++)
                 {
@@ -243,10 +251,10 @@ namespace BTCTickSim
                     return Math.Pow(sum_diff / (double)num_trade, 0.5);
                 }
                 else
-                    return 999;
+                    return 9999;
             }
             else
-                return 999;
+                return 9999;
         }
 
         private double calcTotalPLVola()
@@ -277,13 +285,13 @@ namespace BTCTickSim
 
             int start = 0;
             int end = (int)Math.Truncate(num_tick_q);
-            for(int i=0; i<numq-1; i++)
+            for (int i = 0; i < numq - 1; i++)
             {
                 quarter_performance.Add(list[end] - list[start]);
                 start = end;
                 end += (int)Math.Truncate(num_tick_q);
             }
-            quarter_performance.Add(list[list.Count-1] - list[list.Count - 1 - (int)Math.Truncate(num_tick_q)]);
+            quarter_performance.Add(list[list.Count - 1] - list[list.Count - 1 - (int)Math.Truncate(num_tick_q)]);
         }
 
         public void entryOrder(int i, string position, double price, double lot)
@@ -303,9 +311,10 @@ namespace BTCTickSim
         public void exitAllOrder(int i)
         {
             string position = (holding_position == "Long") ? "Short" : "Long";
-            takeActionLog(i, "Exit all");
             entryPriceTracingOrder(i, position, ave_holding_lot);
+            takeActionLog(i, "Exit all");
         }
+
 
         /********************************************************************
          * cancelall orders when entry to price tracing order
@@ -395,7 +404,7 @@ namespace BTCTickSim
             takeActionLog(i, "Cancelling order #" + index.ToString());
         }
 
-        private void checkExecution(int i)//cancel中でも約定判定すべき
+        private void checkExecution(int i, int fired_box_ind)//cancel中でも約定判定すべき
         {
             for (int j = 0; j < unexe_position.Count; j++)
             {
@@ -404,12 +413,12 @@ namespace BTCTickSim
                     if (unexe_position[j] == "Long")
                     {
                         if (TickData.price[i] <= unexe_price[j])
-                            execute(i, j);
+                            execute(i, j, fired_box_ind);
                     }
                     else if (unexe_position[j] == "Short")
                     {
                         if (TickData.price[i] >= unexe_price[j])
-                            execute(i, j);
+                            execute(i, j, fired_box_ind);
                     }
                 }
             }
@@ -438,7 +447,7 @@ namespace BTCTickSim
             }
         }
 
-        private void execute(int i, int unexe_ind)
+        private void execute(int i, int unexe_ind, int fired_box_ind)//unexe_ind : index of executed unexecuted order
         {
             double lot = (TickData.volume[i] >= unexe_lot[unexe_ind]) ? unexe_lot[unexe_ind] : TickData.volume[i]; // executable lot
 
@@ -465,8 +474,7 @@ namespace BTCTickSim
                     if (lot < ave_holding_lot)
                     {
                         ave_holding_lot -= lot;
-                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot);
-
+                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot, fired_box_ind);
                     }
                     else if (lot > ave_holding_lot)
                     {
@@ -475,11 +483,11 @@ namespace BTCTickSim
                         holding_position = "Short";
                         last_entry_i = i;
                         last_entry_time = TickData.time[i];
-                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot);
+                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot, fired_box_ind);
                     }
                     else if (unexe_lot[unexe_ind] == ave_holding_lot)
                     {
-                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot);
+                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot, fired_box_ind);
                         initializeHoldingData();
                     }
                 }
@@ -492,7 +500,7 @@ namespace BTCTickSim
                     {
                         holding_position = "Short";
                         ave_holding_lot -= lot;
-                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot);
+                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot, fired_box_ind);
                     }
                     else if (lot > ave_holding_lot)
                     {
@@ -501,11 +509,11 @@ namespace BTCTickSim
                         holding_position = "Long";
                         last_entry_i = i;
                         last_entry_time = TickData.time[i];
-                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot);
+                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot, fired_box_ind);
                     }
                     else if (lot == ave_holding_lot)
                     {
-                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot);
+                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot, fired_box_ind);
                         initializeHoldingData();
                     }
                 }
@@ -524,6 +532,8 @@ namespace BTCTickSim
                 removeUnexeInd(unexe_ind);
             else
                 unexe_lot[unexe_ind] -= lot;
+
+
         }
 
 
@@ -532,7 +542,6 @@ namespace BTCTickSim
             if (price_tracing_order_flg)
                 price_tracing_order_target_lot += unexe_lot[index];
             removeUnexeInd(index);
-            //action_log.Add(i, "Cancelled order #" + index.ToString());
             takeActionLog(i, "Cancelled order #" + index.ToString());
         }
 
@@ -548,7 +557,7 @@ namespace BTCTickSim
             takeActionLog(i, "Cancelled all orders");
         }
 
-        private void updateCumPL(int i, int unexe_ind, double price, double lot)
+        private void updateCumPL(int i, int unexe_ind, double price, double lot, int fired_box_ind)
         {
             double pl = 0;
             if (holding_position == "Long")
@@ -566,36 +575,17 @@ namespace BTCTickSim
                 }
             }
 
+            if (pl == 0)
+                pl = 0;
+
             num_trade++;
             if (pl > 0)
                 win_rate++;
             cum_pl += pl;
             cum_pl_log.Add(i, cum_pl);
-        }
 
-        public void writeLog()
-        {
-            string path = @"./sim_result.csv";
-            using (StreamWriter sw = new StreamWriter(path, false, Encoding.Default))
-            {
-                sw.Write("num trade," + num_trade.ToString());
-                sw.Write("cum pl," + cum_pl.ToString());
-                sw.Write("win rate," + win_rate.ToString());
-                sw.Write("ave pl," + ave_pl.ToString());
-                sw.Write("pl_per_min," + pl_per_min.ToString());
-                sw.WriteLine("i,DateTime,Tick,Size,pl,cum pl,position,ave holding price,holding lot,action log");
-
-                for (int i = 0; i < TickData.time.Count - 1; i++)
-                {
-                    string line = i.ToString() + "," + TickData.time[i].ToString() + "," + TickData.price[i] + "," + TickData.volume[i] + ",";
-                    if (position_log.ContainsKey(i))
-                    {
-                        line += pl_log[i] + "," + cum_pl_log[i] + "," + position_log[i] + "," + holding_price_log[i] + "," + lot_log[i] + "," + action_log[i];
-                        sw.WriteLine(line);
-                    }
-                }
-            }
-            Form1.Form1Instance.setLabel("Completed write sim result");
+            if (fired_box_ind >= 0)
+                cum_pl_fired_box[fired_box_ind] += pl;
         }
 
         public void writeLog2()
@@ -612,7 +602,7 @@ namespace BTCTickSim
                 sw.WriteLine("pl vola," + pl_vola.ToString());
                 sw.WriteLine("total pl vola," + total_pl_vola.ToString());
                 sw.WriteLine("profit_factor," + profit_factor.ToString());
-                sw.WriteLine("quarter performance," + quarter_performance.Select(x=>x.ToString()+","));
+                sw.WriteLine("quarter performance," + quarter_performance.Select(x => x.ToString() + ","));
                 sw.WriteLine("i,DateTime,Tick,Size,pl,cum pl,total pl,position,ave holding price,holding lot,action log");
 
                 for (int i = start_ind; i <= end_ind; i++)

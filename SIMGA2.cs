@@ -10,7 +10,7 @@ namespace BTCTickSim
     {
         public AccountGA2 startContrarianTrendFollowSashine(int from ,int to, Chrome2 chro)
         {
-            var ac = new AccountGA2(chro.num_box);
+            var ac = new AccountGA2(chro);
             var pre_dd = new DecisionData2();
             for(int i=from; i<to; i++)
             {
@@ -42,9 +42,9 @@ namespace BTCTickSim
                         ac.entryOrder(i, tdd.position, tdd.price, tdd.lot);
                     }
                 }
-                ac.moveToNext(i);
+                ac.moveToNext(i, tdd.fired_box_ind);
             }
-            ac.lastDayOperation(to, chro);
+            ac.lastDayOperation(to, chro, pre_dd.fired_box_ind);
             return ac;
         }
     }

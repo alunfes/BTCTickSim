@@ -11,7 +11,6 @@ F:\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.csprojA
 F:\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\bin\Debug\System.ValueTuple.dll
 F:\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\bin\Debug\System.ValueTuple.xml
 F:\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.csproj.CopyComplete
-C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.csprojResolveAssemblyReference.cache
 C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.Form1.resources
 C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.Properties.Resources.resources
 C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.csproj.GenerateResource.Cache
@@ -27,3 +26,5 @@ C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\bin\Debug\BTCTic
 C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\bin\Debug\BTCTickSim.application
 C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.exe.manifest
 C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.application
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.csprojAssemblyReference.cache
+C:\Users\s4406\Dropbox\05. Program\csharp\BTCTickSim\BTCTickSim\obj\Debug\BTCTickSim.csproj.CopyComplete

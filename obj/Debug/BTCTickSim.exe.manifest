@@ -42,14 +42,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="BTCTickSim.exe" size="90592">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="BTCTickSim.exe" size="101344">
       <assemblyIdentity name="BTCTickSim" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>7gQ8M26l8V7gd6zGf4nCe7siWh9PX3nsqwrcHcuGOsA=</dsig:DigestValue>
+        <dsig:DigestValue>n9BRI/n9DIH4zHfQEnYwFLYLmEmJqnI+kJkAkSkZ2gk=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

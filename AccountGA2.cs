@@ -28,6 +28,7 @@ namespace BTCTickSim
         public double sharp_ratio;
         public List<double> quarter_performance;
         public double num_trade_per_hour;
+        public double[] cum_pl_fired_box;
 
         public List<double> unexe_price;
         public List<double> unexe_lot;
@@ -62,6 +63,7 @@ namespace BTCTickSim
             this.num_box = chro.num_box;
             fired_box_ind_num = new int[num_box];
             fired_box_ind_num = chro.box_fired_num;
+            cum_pl_fired_box = new double[num_box];
 
             pl = 0;
             cum_pl = 0;
@@ -130,9 +132,9 @@ namespace BTCTickSim
         }
 
 
-        public void moveToNext(int i)
+        public void moveToNext(int i, int fired_box_ind)
         {
-            checkExecution(i);
+            checkExecution(i, fired_box_ind);
             checkCancel(i);
             updatePriceTracingOrder(i);
             pl = calcPL(i);
@@ -140,9 +142,9 @@ namespace BTCTickSim
             start_ind = (i < start_ind) ? i : start_ind;
         }
 
-        public void lastDayOperation(int i, Chrome2 chro)
+        public void lastDayOperation(int i, Chrome2 chro, int fired_box_ind)
         {
-            checkExecution(i);
+            checkExecution(i, fired_box_ind);
             checkCancel(i);
             pl = calcPL(i);
             total_pl_log.Add(i, cum_pl + pl);
@@ -363,7 +365,7 @@ namespace BTCTickSim
             unexe_cancel[index] = true;
         }
 
-        private void checkExecution(int i)//cancel中でも約定判定すべき
+        private void checkExecution(int i, int fired_box_ind)//cancel中でも約定判定すべき
         {
             for (int j = 0; j < unexe_position.Count; j++)
             {
@@ -372,12 +374,12 @@ namespace BTCTickSim
                     if (unexe_position[j] == "Long")
                     {
                         if (TickData.price[i] <= unexe_price[j])
-                            execute(i, j);
+                            execute(i, j, fired_box_ind);
                     }
                     else if (unexe_position[j] == "Short")
                     {
                         if (TickData.price[i] >= unexe_price[j])
-                            execute(i, j);
+                            execute(i, j, fired_box_ind);
                     }
                 }
             }
@@ -404,7 +406,7 @@ namespace BTCTickSim
             }
         }
 
-        private void execute(int i, int unexe_ind)
+        private void execute(int i, int unexe_ind, int fired_box_ind)//unexe_ind : index of executed unexecuted order
         {
             double lot = (TickData.volume[i] >= unexe_lot[unexe_ind]) ? unexe_lot[unexe_ind] : TickData.volume[i]; // executable lot
 
@@ -431,7 +433,7 @@ namespace BTCTickSim
                     if (lot < ave_holding_lot)
                     {
                         ave_holding_lot -= lot;
-                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot);
+                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot, fired_box_ind);
                     }
                     else if (lot > ave_holding_lot)
                     {
@@ -440,11 +442,11 @@ namespace BTCTickSim
                         holding_position = "Short";
                         last_entry_i = i;
                         last_entry_time = TickData.time[i];
-                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot);
+                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot, fired_box_ind);
                     }
                     else if (unexe_lot[unexe_ind] == ave_holding_lot)
                     {
-                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot);
+                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot, fired_box_ind);
                         initializeHoldingData();
                     }
                 }
@@ -457,7 +459,7 @@ namespace BTCTickSim
                     {
                         holding_position = "Short";
                         ave_holding_lot -= lot;
-                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot);
+                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot, fired_box_ind);
                     }
                     else if (lot > ave_holding_lot)
                     {
@@ -466,11 +468,11 @@ namespace BTCTickSim
                         holding_position = "Long";
                         last_entry_i = i;
                         last_entry_time = TickData.time[i];
-                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot);
+                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot, fired_box_ind);
                     }
                     else if (lot == ave_holding_lot)
                     {
-                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot);
+                        updateCumPL(i, unexe_ind, unexe_price[unexe_ind], lot, fired_box_ind);
                         initializeHoldingData();
                     }
                 }
@@ -488,6 +490,8 @@ namespace BTCTickSim
                 removeUnexeInd(unexe_ind);
             else
                 unexe_lot[unexe_ind] -= lot;
+
+
         }
 
 
@@ -509,7 +513,7 @@ namespace BTCTickSim
             initializeCancelAllData();
         }
 
-        private void updateCumPL(int i, int unexe_ind, double price, double lot)
+        private void updateCumPL(int i, int unexe_ind, double price, double lot, int fired_box_ind)
         {
             double pl = 0;
             if (holding_position == "Long")
@@ -535,6 +539,9 @@ namespace BTCTickSim
                 win_rate++;
             cum_pl += pl;
             cum_pl_log.Add(cum_pl);
+
+            if(fired_box_ind >=0)
+                cum_pl_fired_box[fired_box_ind] += pl;
         }
     }
 }

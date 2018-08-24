@@ -104,9 +104,8 @@ namespace BTCTickSim
         private void doContiGASim()
         {
             TickData.readTickData(0);
-
-            SIMContinuousGA2 sim = new SIMContinuousGA2();
-            sim.startContrarianSashine(TickData.time.Count - 5000000, TickData.time.Count - 4700000, 20, 30, 15000, 12500, true);
+            var sim = new SIMContinuousGA2();
+            sim.startContrarianSashine(TickData.price.Count - 5000000, TickData.price.Count - 4800000, 15, 10, 4, 5, 0.1, 3, 400000, true);
         }
 
         private void gaIsland()
