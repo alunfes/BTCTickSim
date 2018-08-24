@@ -70,6 +70,11 @@ namespace BTCTickSim
             th.startGAIsland2();
         }
 
+        private void buttonSimContiGA2_Click(object sender, EventArgs e)
+        {
+
+        }
+
         #region Delegate
         private delegate void setLabel1Delegate(string text);
         public void setLabel(string text)
@@ -137,6 +142,7 @@ namespace BTCTickSim
             this.listBox2.Items.Add(text);
             this.listBox2.TopIndex = this.listBox2.Items.Count - 1;
         }
+
 
 
 

@@ -55,12 +55,13 @@ namespace BTCTickSim
         public List<double> cum_pl_log;
         public Dictionary<int, double> total_pl_log;
 
-        public AccountGA2(int num_box)
+        public AccountGA2(Chrome2 chro)
         {
             start_ind = 999999999;
             end_ind = 0;
-            this.num_box = num_box;
+            this.num_box = chro.num_box;
             fired_box_ind_num = new int[num_box];
+            fired_box_ind_num = chro.box_fired_num;
 
             pl = 0;
             cum_pl = 0;
@@ -157,7 +158,8 @@ namespace BTCTickSim
             pl_vola = calcPLVolatility();
             total_pl_vola = calcTotalPLVola();
 
-            fired_box_ind_num = chro.box_fired_num;
+            for (int j = 0; j < fired_box_ind_num.Length; j++)
+                fired_box_ind_num[j] = chro.box_fired_num[j] - fired_box_ind_num[j];
         }
 
         public double calcPL(int i)

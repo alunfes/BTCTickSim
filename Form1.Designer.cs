@@ -40,6 +40,7 @@
             this.buttonGA = new System.Windows.Forms.Button();
             this.buttonGAIsland = new System.Windows.Forms.Button();
             this.buttonGaIsland2 = new System.Windows.Forms.Button();
+            this.buttonSimContiGA2 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // buttonStart
@@ -161,11 +162,22 @@
             this.buttonGaIsland2.UseVisualStyleBackColor = true;
             this.buttonGaIsland2.Click += new System.EventHandler(this.button1_Click);
             // 
+            // buttonSimContiGA2
+            // 
+            this.buttonSimContiGA2.Location = new System.Drawing.Point(1520, 182);
+            this.buttonSimContiGA2.Name = "buttonSimContiGA2";
+            this.buttonSimContiGA2.Size = new System.Drawing.Size(194, 83);
+            this.buttonSimContiGA2.TabIndex = 12;
+            this.buttonSimContiGA2.Text = "Conti GA SIM2";
+            this.buttonSimContiGA2.UseVisualStyleBackColor = true;
+            this.buttonSimContiGA2.Click += new System.EventHandler(this.buttonSimContiGA2_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1974, 1344);
+            this.Controls.Add(this.buttonSimContiGA2);
             this.Controls.Add(this.buttonGaIsland2);
             this.Controls.Add(this.buttonGAIsland);
             this.Controls.Add(this.buttonGA);
@@ -201,6 +213,7 @@
         private System.Windows.Forms.Button buttonGA;
         private System.Windows.Forms.Button buttonGAIsland;
         private System.Windows.Forms.Button buttonGaIsland2;
+        private System.Windows.Forms.Button buttonSimContiGA2;
     }
 }
 

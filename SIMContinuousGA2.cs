@@ -8,7 +8,7 @@ namespace BTCTickSim
 {
     class SIMContinuousGA2
     {
-        public Account startContrarianSashine(int from, int to, int num_chrom, int num_generation, int search_period, int pl_check_period, bool write_result)
+        public Account startContrarianSashine(int from, int to, int num_chrom, int num_generation, int num_islands, int elite_crossover_start, double immigration_rate, int search_period, int pl_check_period, bool write_result)
         {
             Account ac = new Account();
             int last_str_changed_ind = from;
