@@ -93,10 +93,14 @@ namespace BTCTickSim
                     dd.price = (ac.holding_position == "Long") ? Math.Round(ac.ave_holding_price * (1 + chro.gene_rikaku_percentage[selected_box])) : Math.Round(ac.ave_holding_price * (1 - chro.gene_rikaku_percentage[selected_box]));
                     dd.lot = ac.ave_holding_lot;
                 }
-                else if (entry_sign == ac.holding_position && ac.unexe_position.Count == 0 && (TickData.time[i] - ac.last_entry_time).TotalSeconds >= chro.gene_exit_time_sec[selected_box])
+                else if ((TickData.time[i] - ac.last_entry_time).TotalSeconds >= chro.gene_exit_time_sec[selected_box])
                 {
                     dd = makeDDForEntryPriceTracingOrder(i, (ac.holding_position == "Long") ? "Short" : "Long", true, ac.ave_holding_lot, selected_box);
                 }
+                /*else if (entry_sign == ac.holding_position && ac.unexe_position.Count == 0 && (TickData.time[i] - ac.last_entry_time).TotalSeconds >= chro.gene_exit_time_sec[selected_box])
+                {
+                    dd = makeDDForEntryPriceTracingOrder(i, (ac.holding_position == "Long") ? "Short" : "Long", true, ac.ave_holding_lot, selected_box);
+                }*/
             }
             else if (ac.holding_position != "None")
             {
