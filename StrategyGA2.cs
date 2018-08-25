@@ -110,6 +110,9 @@ namespace BTCTickSim
             {
                 // dd.position = "Exit_All";
             }
+
+            //if(dd.fired_box_ind!=-1) chro.box_fired_num[dd.fired_box_ind]++;   ->Count in SIM class
+
             return dd;
         }
 

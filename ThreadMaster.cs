@@ -131,16 +131,16 @@ namespace BTCTickSim
                     GAIslandMaster2 gim = new GAIslandMaster2();
                     int from = TickData.price.Count - 6000000 + i*slide;
                     int to = from + opt_period;
-                    var c = gim.startGA(from, to, 3, 16, 15, 3, 0.05, 10, 30, 10, 10, true);
+                    var chro = gim.startGA(from, to, 3, 5, 5, 2, 0.05, 10, 30, 10, 10, true);
                     //Form1.Form1Instance.addListBox2("GA period - "+ ", fired box num=" + c.box_fired_num[0] + " : " + c.box_fired_num[1] + " : " + c.box_fired_num[2]);
                     var s = new SIM2();
-                    var ac = s.startContrarianTrendFollowSashine(from, to, c, false);
+                    var ac = s.startContrarianTrendFollowSashine(from, to, chro, false, false);
                     Form1.Form1Instance.addListBox2(i.ToString()+" - "+"GA period - pl per min=" + Math.Round(ac.pl_per_min, 2) + ",num trade=" + Math.Round(ac.num_trade_per_hour, 2) + ", vola=" + Math.Round(ac.total_pl_vola, 2) + ", fired box num=" + ac.fired_box_ind_num[0] + " : " + ac.fired_box_ind_num[1] + " : " + ac.fired_box_ind_num[2]);
                     
 
                     s = new SIM2();
                     //c.initializeFiredBoxNum();
-                    var ac2 = s.startContrarianTrendFollowSashine(to, to + sim_period, c, true);
+                    var ac2 = s.startContrarianTrendFollowSashine(to, to + sim_period, chro, true, false);
                     Form1.Form1Instance.addListBox2("SIM period - pl per min=" + Math.Round(ac2.pl_per_min, 2) + ",num trade=" + Math.Round(ac2.num_trade_per_hour, 2) + ", vola=" + Math.Round(ac2.total_pl_vola, 2) + ", fired box num=" + ac2.fired_box_ind_num[0] + " : " + ac2.fired_box_ind_num[1] + " : " + ac2.fired_box_ind_num[2]);
 
                     sw.WriteLine(Math.Round(ac.pl_per_min, 2) + "," + Math.Round(ac.num_trade_per_hour,6) + "," + Math.Round(ac.total_pl_vola) + "," + ac.fired_box_ind_num[0] + "," + ac.fired_box_ind_num[1] + "," + ac.fired_box_ind_num[2] +

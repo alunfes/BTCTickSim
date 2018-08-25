@@ -16,7 +16,7 @@ namespace BTCTickSim
             var chro = new Chrome2(from - search_period, from-1, num_box);
             chro = getOptStrategy(from - search_period, from - 1, num_chrom, num_generation, num_box, num_islands, immigration_rate, elite_crossover_start, 30, 10, 10);
             SIM2 sim = new SIM2();
-            AccountGA2 ac_best = sim.startContrarianTrendFollowSashine(from - search_period, from - 1, chro, true);
+            Account2 ac_best = sim.startContrarianTrendFollowSashine(from - search_period, from - 1, chro, true, write_result);
             int num_recalc = 0;
             var pre_dd = new DecisionData2();
 
@@ -66,7 +66,7 @@ namespace BTCTickSim
                     chro = getOptStrategy(i - search_period, i, num_chrom, num_generation, num_box, num_islands, immigration_rate, elite_crossover_start, 30, 10, 10);
                     sim = new SIM2();
                     Form1.Form1Instance.addListBox2("recalc=" + num_recalc);
-                    ac_best = sim.startContrarianTrendFollowSashine(i - search_period, i, chro, true);
+                    ac_best = sim.startContrarianTrendFollowSashine(i - search_period, i, chro, true, false);
                     ac.takeActionLog(i, "applied new strategy:num trade=" + ac_best.num_trade.ToString() + " :pl per min=" + ac_best.pl_per_min.ToString() + " :win rate=" + ac_best.win_rate.ToString());
                 }
                 ac.moveToNext(i, tdd.fired_box_ind);
@@ -76,7 +76,7 @@ namespace BTCTickSim
             return ac;
         }
 
-        private bool checkUpdateStrategy(int i, int last_str_ind, int from, int last_str_num_trade, Account2 ac, AccountGA2 ac_best)
+        private bool checkUpdateStrategy(int i, int last_str_ind, int from, int last_str_num_trade, Account2 ac, Account2 ac_best)
         {
             bool res = false;
             double expected_num_trade = (Convert.ToDouble(ac_best.num_trade) / Convert.ToDouble(ac_best.end_ind - ac_best.start_ind)) * Convert.ToDouble(i - last_str_ind);

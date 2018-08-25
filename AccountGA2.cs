@@ -12,8 +12,6 @@ namespace BTCTickSim
 
         public int start_ind;
         public int end_ind;
-
-        public int[] fired_box_ind_num;
         public int num_box;
 
         public double pl;
@@ -28,7 +26,6 @@ namespace BTCTickSim
         public double sharp_ratio;
         public List<double> quarter_performance;
         public double num_trade_per_hour;
-        public double[] cum_pl_fired_box;
 
         public List<double> unexe_price;
         public List<double> unexe_lot;
@@ -61,9 +58,6 @@ namespace BTCTickSim
             start_ind = 999999999;
             end_ind = 0;
             this.num_box = chro.num_box;
-            fired_box_ind_num = new int[num_box];
-            fired_box_ind_num = chro.box_fired_num;
-            cum_pl_fired_box = new double[num_box];
 
             pl = 0;
             cum_pl = 0;
@@ -159,9 +153,6 @@ namespace BTCTickSim
             calcQuarterPerformance(4);
             pl_vola = calcPLVolatility();
             total_pl_vola = calcTotalPLVola();
-
-            for (int j = 0; j < fired_box_ind_num.Length; j++)
-                fired_box_ind_num[j] = chro.box_fired_num[j] - fired_box_ind_num[j];
         }
 
         public double calcPL(int i)
@@ -540,8 +531,6 @@ namespace BTCTickSim
             cum_pl += pl;
             cum_pl_log.Add(cum_pl);
 
-            if(fired_box_ind >=0)
-                cum_pl_fired_box[fired_box_ind] += pl;
         }
     }
 }

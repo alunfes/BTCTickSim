@@ -70,7 +70,6 @@ namespace BTCTickSim
             end_ind = 0;
             this.num_box = chro.num_box;
             fired_box_ind_num = new int[num_box];
-            fired_box_ind_num = chro.box_fired_num;
             cum_pl_fired_box = new double[num_box];
 
             pl = 0;
@@ -185,7 +184,7 @@ namespace BTCTickSim
             total_pl_vola = calcTotalPLVola();
 
             for (int j = 0; j < fired_box_ind_num.Length; j++)
-                fired_box_ind_num[j] = chro.box_fired_num[j] - fired_box_ind_num[j];
+                fired_box_ind_num[j] = chro.box_fired_num[j];
             
             if (writelog)
                 writeLog2();
@@ -207,7 +206,7 @@ namespace BTCTickSim
         {
             if (num_trade > 0)
             {
-                var list = cum_pl_log;
+                var list = cum_pl_log.Values.ToList();
                 List<double> pl = new List<double>();
                 for (int i = 1; i < list.Count; i++)
                 {
@@ -234,7 +233,7 @@ namespace BTCTickSim
         {
             if (num_trade > 5)
             {
-                var list = cum_pl_log;
+                var list = cum_pl_log.Values.ToList();
                 List<double> pl = new List<double>();
                 for (int i = 1; i < list.Count; i++)
                 {
