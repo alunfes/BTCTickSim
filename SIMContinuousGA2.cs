@@ -13,10 +13,10 @@ namespace BTCTickSim
             var ac = new Account2(new Chrome2(from, to, num_box));
             int last_str_changed_ind = from;
             int last_str_num_trade = 0;
-            var chro = new Chrome2(from - search_period, from-1, num_box);
+            var chro = new Chrome2(from - search_period, from - 1, num_box);
             chro = getOptStrategy(from - search_period, from - 1, num_chrom, num_generation, num_box, num_islands, immigration_rate, elite_crossover_start, 30, 10, 10);
-            SIM2 sim = new SIM2();
-            Account2 ac_best = sim.startContrarianTrendFollowSashine(from - search_period, from - 1, chro, true, write_result);
+            var sim = new SIM2();
+            Account2 ac_best = sim.startContrarianTrendFollowSashine(from - search_period, from - 1, chro, false, false);
             int num_recalc = 0;
             var pre_dd = new DecisionData2();
 
@@ -66,7 +66,7 @@ namespace BTCTickSim
                     chro = getOptStrategy(i - search_period, i, num_chrom, num_generation, num_box, num_islands, immigration_rate, elite_crossover_start, 30, 10, 10);
                     sim = new SIM2();
                     Form1.Form1Instance.addListBox2("recalc=" + num_recalc);
-                    ac_best = sim.startContrarianTrendFollowSashine(i - search_period, i, chro, true, false);
+                    ac_best = sim.startContrarianTrendFollowSashine(i - search_period, i, chro, false, false);
                     ac.takeActionLog(i, "applied new strategy:num trade=" + ac_best.num_trade.ToString() + " :pl per min=" + ac_best.pl_per_min.ToString() + " :win rate=" + ac_best.win_rate.ToString());
                 }
                 ac.moveToNext(i, tdd.fired_box_ind);
@@ -81,7 +81,7 @@ namespace BTCTickSim
             bool res = false;
             double expected_num_trade = (Convert.ToDouble(ac_best.num_trade) / Convert.ToDouble(ac_best.end_ind - ac_best.start_ind)) * Convert.ToDouble(i - last_str_ind);
 
-            if ((i - last_str_ind) >= 2500)
+            if ((i - last_str_ind) >= 100000)
             {
                 double current_pl_per_min = (ac.total_pl_log[i - 1] - ac.total_pl_log[last_str_ind]) / (TickData.time[i - 1] - TickData.time[last_str_ind]).TotalMinutes;
                 if (ac_best.pl_per_min * 0.7 >= current_pl_per_min)

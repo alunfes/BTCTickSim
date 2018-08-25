@@ -8,6 +8,7 @@ namespace BTCTickSim
 {
     class SIM2
     {
+
         public Account2 startContrarianTrendFollowSashine(int from, int to, Chrome2 chro, bool no_trade_non_fired_box, bool writelog)
         {
             var ac = new Account2(chro);

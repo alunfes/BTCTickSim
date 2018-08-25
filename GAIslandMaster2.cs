@@ -33,11 +33,14 @@ namespace BTCTickSim
                 immigration(immig_rate, num_island, num_chrom);
                 checkBestChrome(i);
 
-                SIMGA2 s = new SIMGA2();
+                var s = new SIMGA2();
                 s.startContrarianTrendFollowSashine(from, to, best_chrome[best_chrome.Count - 1]);
                 Form1.Form1Instance.addListBox("#" + i.ToString() + ", pl per min=" + Math.Round(best_ac[best_ac.Count - 1].pl_per_min, 2).ToString() + ", num trade per hour=" + Math.Round(best_ac[best_ac.Count - 1].num_trade_per_hour, 2).ToString()
                     + ", total pl vola=" + Math.Round(best_ac[best_ac.Count - 1].total_pl_vola, 2).ToString());
             }
+
+            if (writelog)
+                writeResults();
 
             return best_chrome[num_generation - 1];
         }
@@ -111,6 +114,12 @@ namespace BTCTickSim
             }
             best_ac.Add(generation, islands[max_ind].best_ac_log[islands[max_ind].best_ac_log.Count - 1]);
             best_chrome.Add(generation, islands[max_ind].chromes[islands[max_ind].best_chrom_ind[islands[max_ind].best_chrom_ind.Count - 1]]);
+        }
+
+
+        private void writeResults()
+        {
+
         }
     }
 }

@@ -14,9 +14,7 @@ namespace BTCTickSim
             var pre_dd = new DecisionData2();
             for(int i=from; i<to; i++)
             {
-                var tdd = StrategyGA2.contrarianSashine(ac, i, chro, pre_dd, false);
-                //if(tdd.fired_box_ind>=0)
-                //    chro.box_fired_num[tdd.fired_box_ind]++;
+                var tdd = StrategyGA2.contrarianSashine(ac, i, chro, pre_dd);
                 pre_dd = tdd;
 
                 if(tdd.position == "Exit_All")

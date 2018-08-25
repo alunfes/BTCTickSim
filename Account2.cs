@@ -54,6 +54,8 @@ namespace BTCTickSim
         public int last_entry_i;
         public string holding_position; //Long, Short, None
 
+        public TimeSpan total_elapsed_time;
+
         //log
         public Dictionary<int, double> total_pl_log;
         private Dictionary<int, double> pl_log;
@@ -93,6 +95,8 @@ namespace BTCTickSim
             action_log2 = new Dictionary<string, string>();
             total_pl_log = new Dictionary<int, double>();
             action_log_num = 0;
+
+            total_elapsed_time = new TimeSpan();
 
             initializeUnexeData();
             initializeCancelAllData();
@@ -182,6 +186,8 @@ namespace BTCTickSim
             calcQuarterPerformance(4);
             pl_vola = calcPLVolatility();
             total_pl_vola = calcTotalPLVola();
+
+            total_elapsed_time = TickData.time[end_ind] - TickData.time[start_ind];
 
             for (int j = 0; j < fired_box_ind_num.Length; j++)
                 fired_box_ind_num[j] = chro.box_fired_num[j];
