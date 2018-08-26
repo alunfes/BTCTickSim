@@ -81,9 +81,9 @@ namespace BTCTickSim
             bool res = false;
             double expected_num_trade = (Convert.ToDouble(ac_best.num_trade) / Convert.ToDouble(ac_best.end_ind - ac_best.start_ind)) * Convert.ToDouble(i - last_str_ind);
 
-            if ((i - last_str_ind) >= 100000)
+            if ((i - last_str_ind) >= 30000)
             {
-                double current_pl_per_min = (ac.total_pl_log[i - 1] - ac.total_pl_log[last_str_ind]) / (TickData.time[i - 1] - TickData.time[last_str_ind]).TotalMinutes;
+                double current_pl_per_min = (ac.total_pl_log[i - 1] - ac.total_pl_log[i-10000]) / (TickData.time[i - 1] - TickData.time[i-10000]).TotalMinutes;
                 if (ac_best.pl_per_min * 0.7 >= current_pl_per_min)
                 {
                     Form1.Form1Instance.setLabel3("num:" + (i - ac.start_ind).ToString() + " recalc because of pl per min" + ", current pl_per_min=" + current_pl_per_min.ToString());
